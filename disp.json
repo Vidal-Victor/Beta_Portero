@@ -1,0 +1,15 @@
+{
+    "cam": {
+        "placa_coords": [
+            139, 
+            190, 
+            357, 
+            189
+        ],
+        "dispositivoE": 0,
+        "dispositivoS": 1
+    },
+    "mic": {
+        "dispositivo": 0
+    }
+}
