@@ -1,6 +1,5 @@
 import sys
 import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "lib"))
 import pyttsx3
 import speech_recognition as sr
 
@@ -61,3 +60,8 @@ def Portero_speak_entrada(placa):
     speaker.say("Número máximo de tentativas atingido. Encerrando.")
     speaker.runAndWait()
     print("Número máximo de tentativas atingido. Função encerrada.")
+
+def Entrada_erro():
+    speaker = pyttsx3.init()
+    speaker.say("O veículo já apresenta uma entrada registrada. Para registar uma nova entrada, é necessário registrar a sua saída.")
+    speaker.runAndWait()

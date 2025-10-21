@@ -1,10 +1,9 @@
 import sys
 import os
-from Cam_Portero import Portero_cam
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "lib"))
 import cv2 
 import ttkbootstrap as tb
 import json
+from Cam_Portero import Portero_cam
 from ttkbootstrap.constants import *
 from ttkbootstrap.style import Style
 from pygrabber.dshow_graph import FilterGraph
@@ -117,7 +116,7 @@ def janelaR():
 
     def selecionar_area():
         nonlocal dimensao
-        cap = cv2.VideoCapture(0)
+        cap = cv2.VideoCapture(1)
         ret, frame = cap.read()
         cap.release()
 

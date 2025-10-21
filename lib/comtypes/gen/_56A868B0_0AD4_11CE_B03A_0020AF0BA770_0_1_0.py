@@ -19,6 +19,221 @@ LONG_PTR = c_longlong
 
 
 
+class IMediaTypeInfo(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IDispatch):
+    """Media Type"""
+    _case_insensitive_ = True
+    _iid_ = GUID('{56A868BC-0AD4-11CE-B03A-0020AF0BA770}')
+    _idlflags_ = ['dual', 'oleautomation']
+
+    if TYPE_CHECKING:  # commembers
+        def _get_Type(self) -> hints.Incomplete: ...
+        Type = hints.normal_property(_get_Type)
+        def _get_Subtype(self) -> hints.Incomplete: ...
+        Subtype = hints.normal_property(_get_Subtype)
+
+
+IMediaTypeInfo._methods_ = [
+    COMMETHOD(
+        [dispid(1610743808), 'propget'],
+        HRESULT,
+        'Type',
+        (['out', 'retval'], POINTER(BSTR), 'strType')
+    ),
+    COMMETHOD(
+        [dispid(1610743809), 'propget'],
+        HRESULT,
+        'Subtype',
+        (['out', 'retval'], POINTER(BSTR), 'strType')
+    ),
+]
+
+################################################################
+# code template for IMediaTypeInfo implementation
+# class IMediaTypeInfo_Impl(object):
+#     @property
+#     def Type(self):
+#         '-no docstring-'
+#         #return strType
+#
+#     @property
+#     def Subtype(self):
+#         '-no docstring-'
+#         #return strType
+#
+
+
+class IFilterInfo(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IDispatch):
+    """FilterInfo"""
+    _case_insensitive_ = True
+    _iid_ = GUID('{56A868BA-0AD4-11CE-B03A-0020AF0BA770}')
+    _idlflags_ = ['dual', 'oleautomation']
+
+    if TYPE_CHECKING:  # commembers
+        def FindPin(self, strPinID: hints.Incomplete) -> hints.Incomplete: ...
+        def _get_Name(self) -> hints.Incomplete: ...
+        Name = hints.normal_property(_get_Name)
+        def _get_VendorInfo(self) -> hints.Incomplete: ...
+        VendorInfo = hints.normal_property(_get_VendorInfo)
+        def _get_Filter(self) -> hints.Incomplete: ...
+        Filter = hints.normal_property(_get_Filter)
+        def _get_Pins(self) -> hints.Incomplete: ...
+        Pins = hints.normal_property(_get_Pins)
+        def _get_IsFileSource(self) -> hints.Incomplete: ...
+        IsFileSource = hints.normal_property(_get_IsFileSource)
+        def _get_Filename(self) -> hints.Incomplete: ...
+        def _set_Filename(self, pstrFilename: hints.Incomplete) -> hints.Hresult: ...
+        Filename = hints.normal_property(_get_Filename, _set_Filename)
+
+
+IFilterInfo._methods_ = [
+    COMMETHOD(
+        [dispid(1610743808)],
+        HRESULT,
+        'FindPin',
+        (['in'], BSTR, 'strPinID'),
+        (['out'], POINTER(POINTER(IDispatch)), 'ppUnk')
+    ),
+    COMMETHOD(
+        [dispid(1610743809), 'propget'],
+        HRESULT,
+        'Name',
+        (['out', 'retval'], POINTER(BSTR), 'strName')
+    ),
+    COMMETHOD(
+        [dispid(1610743810), 'propget'],
+        HRESULT,
+        'VendorInfo',
+        (['out', 'retval'], POINTER(BSTR), 'strVendorInfo')
+    ),
+    COMMETHOD(
+        [dispid(1610743811), 'propget'],
+        HRESULT,
+        'Filter',
+        (['out', 'retval'], POINTER(POINTER(IUnknown)), 'ppUnk')
+    ),
+    COMMETHOD(
+        [dispid(1610743812), 'propget'],
+        HRESULT,
+        'Pins',
+        (['out', 'retval'], POINTER(POINTER(IDispatch)), 'ppUnk')
+    ),
+    COMMETHOD(
+        [dispid(1610743813), 'propget'],
+        HRESULT,
+        'IsFileSource',
+        (['out', 'retval'], POINTER(c_int), 'pbIsSource')
+    ),
+    COMMETHOD(
+        [dispid(1610743814), 'propget'],
+        HRESULT,
+        'Filename',
+        (['out', 'retval'], POINTER(BSTR), 'pstrFilename')
+    ),
+    COMMETHOD(
+        [dispid(1610743814), 'propput'],
+        HRESULT,
+        'Filename',
+        (['in'], BSTR, 'pstrFilename')
+    ),
+]
+
+################################################################
+# code template for IFilterInfo implementation
+# class IFilterInfo_Impl(object):
+#     def FindPin(self, strPinID):
+#         '-no docstring-'
+#         #return ppUnk
+#
+#     @property
+#     def Name(self):
+#         '-no docstring-'
+#         #return strName
+#
+#     @property
+#     def VendorInfo(self):
+#         '-no docstring-'
+#         #return strVendorInfo
+#
+#     @property
+#     def Filter(self):
+#         '-no docstring-'
+#         #return ppUnk
+#
+#     @property
+#     def Pins(self):
+#         '-no docstring-'
+#         #return ppUnk
+#
+#     @property
+#     def IsFileSource(self):
+#         '-no docstring-'
+#         #return pbIsSource
+#
+#     def _get(self):
+#         '-no docstring-'
+#         #return pstrFilename
+#     def _set(self, pstrFilename):
+#         '-no docstring-'
+#     Filename = property(_get, _set, doc = _set.__doc__)
+#
+
+
+class IDeferredCommand(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IUnknown):
+    """IDeferredCommand"""
+    _case_insensitive_ = True
+    _iid_ = GUID('{56A868B8-0AD4-11CE-B03A-0020AF0BA770}')
+    _idlflags_ = []
+
+    if TYPE_CHECKING:  # commembers
+        def Cancel(self) -> hints.Hresult: ...
+        def Confidence(self) -> hints.Incomplete: ...
+        def Postpone(self, newtime: hints.Incomplete) -> hints.Hresult: ...
+        def GetHResult(self) -> hints.Incomplete: ...
+
+
+IDeferredCommand._methods_ = [
+    COMMETHOD([], HRESULT, 'Cancel'),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'Confidence',
+        (['out'], POINTER(c_int), 'pConfidence')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'Postpone',
+        (['in'], c_double, 'newtime')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'GetHResult',
+        (['out'], POINTER(HRESULT), 'phrResult')
+    ),
+]
+
+################################################################
+# code template for IDeferredCommand implementation
+# class IDeferredCommand_Impl(object):
+#     def Cancel(self):
+#         '-no docstring-'
+#         #return 
+#
+#     def Confidence(self):
+#         '-no docstring-'
+#         #return pConfidence
+#
+#     def Postpone(self, newtime):
+#         '-no docstring-'
+#         #return 
+#
+#     def GetHResult(self):
+#         '-no docstring-'
+#         #return phrResult
+#
+
+
 class IBasicVideo(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IDispatch):
     """IBasicVideo interface"""
     _case_insensitive_ = True
@@ -71,16 +286,6 @@ class IBasicVideo(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IDisp
         def GetCurrentImage(self, pBufferSize: hints.Incomplete) -> hints.Tuple[hints.Incomplete, hints.Incomplete]: ...
         def IsUsingDefaultSource(self) -> hints.Hresult: ...
         def IsUsingDefaultDestination(self) -> hints.Hresult: ...
-
-
-class IBasicVideo2(IBasicVideo):
-    """IBasicVideo2"""
-    _case_insensitive_ = True
-    _iid_ = GUID('{329BB360-F6EA-11D1-9038-00A0C9697298}')
-    _idlflags_ = []
-
-    if TYPE_CHECKING:  # commembers
-        def GetPreferredAspectRatio(self) -> hints.Tuple[hints.Incomplete, hints.Incomplete]: ...
 
 
 IBasicVideo._methods_ = [
@@ -404,23 +609,13 @@ IBasicVideo._methods_ = [
 #         #return 
 #
 
-IBasicVideo2._methods_ = [
-    COMMETHOD(
-        [],
-        HRESULT,
-        'GetPreferredAspectRatio',
-        (['out'], POINTER(c_int), 'plAspectX'),
-        (['out'], POINTER(c_int), 'plAspectY')
-    ),
-]
 
-################################################################
-# code template for IBasicVideo2 implementation
-# class IBasicVideo2_Impl(object):
-#     def GetPreferredAspectRatio(self):
-#         '-no docstring-'
-#         #return plAspectX, plAspectY
-#
+class FilgraphManager(CoClass):
+    """Filtergraph type info"""
+    _reg_clsid_ = GUID('{E436EBB3-524F-11CE-9F53-0020AF0BA770}')
+    _idlflags_ = []
+    _typelib_path_ = typelib_path
+    _reg_typelib_ = ('{56A868B0-0AD4-11CE-B03A-0020AF0BA770}', 1, 0)
 
 
 class IMediaControl(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IDispatch):
@@ -441,102 +636,6 @@ class IMediaControl(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IDi
         def _get_RegFilterCollection(self) -> hints.Incomplete: ...
         RegFilterCollection = hints.normal_property(_get_RegFilterCollection)
         def StopWhenReady(self) -> hints.Hresult: ...
-
-
-IMediaControl._methods_ = [
-    COMMETHOD([dispid(1610743808)], HRESULT, 'Run'),
-    COMMETHOD([dispid(1610743809)], HRESULT, 'Pause'),
-    COMMETHOD([dispid(1610743810)], HRESULT, 'Stop'),
-    COMMETHOD(
-        [dispid(1610743811)],
-        HRESULT,
-        'GetState',
-        (['in'], c_int, 'msTimeout'),
-        (['out'], POINTER(c_int), 'pfs')
-    ),
-    COMMETHOD(
-        [dispid(1610743812)],
-        HRESULT,
-        'RenderFile',
-        (['in'], BSTR, 'strFilename')
-    ),
-    COMMETHOD(
-        [dispid(1610743813)],
-        HRESULT,
-        'AddSourceFilter',
-        (['in'], BSTR, 'strFilename'),
-        (['out'], POINTER(POINTER(IDispatch)), 'ppUnk')
-    ),
-    COMMETHOD(
-        [dispid(1610743814), 'propget'],
-        HRESULT,
-        'FilterCollection',
-        (['out', 'retval'], POINTER(POINTER(IDispatch)), 'ppUnk')
-    ),
-    COMMETHOD(
-        [dispid(1610743815), 'propget'],
-        HRESULT,
-        'RegFilterCollection',
-        (['out', 'retval'], POINTER(POINTER(IDispatch)), 'ppUnk')
-    ),
-    COMMETHOD([dispid(1610743816)], HRESULT, 'StopWhenReady'),
-]
-
-################################################################
-# code template for IMediaControl implementation
-# class IMediaControl_Impl(object):
-#     def Run(self):
-#         '-no docstring-'
-#         #return 
-#
-#     def Pause(self):
-#         '-no docstring-'
-#         #return 
-#
-#     def Stop(self):
-#         '-no docstring-'
-#         #return 
-#
-#     def GetState(self, msTimeout):
-#         '-no docstring-'
-#         #return pfs
-#
-#     def RenderFile(self, strFilename):
-#         '-no docstring-'
-#         #return 
-#
-#     def AddSourceFilter(self, strFilename):
-#         '-no docstring-'
-#         #return ppUnk
-#
-#     @property
-#     def FilterCollection(self):
-#         '-no docstring-'
-#         #return ppUnk
-#
-#     @property
-#     def RegFilterCollection(self):
-#         '-no docstring-'
-#         #return ppUnk
-#
-#     def StopWhenReady(self):
-#         '-no docstring-'
-#         #return 
-#
-
-
-class Library(object):
-    """ActiveMovie control type library"""
-    name = 'QuartzTypeLib'
-    _reg_typelib_ = ('{56A868B0-0AD4-11CE-B03A-0020AF0BA770}', 1, 0)
-
-
-class FilgraphManager(CoClass):
-    """Filtergraph type info"""
-    _reg_clsid_ = GUID('{E436EBB3-524F-11CE-9F53-0020AF0BA770}')
-    _idlflags_ = []
-    _typelib_path_ = typelib_path
-    _reg_typelib_ = ('{56A868B0-0AD4-11CE-B03A-0020AF0BA770}', 1, 0)
 
 
 class IMediaEvent(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IDispatch):
@@ -660,59 +759,72 @@ class IVideoWindow(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IDis
 FilgraphManager._com_interfaces_ = [IMediaControl, IMediaEvent, IMediaPosition, IBasicAudio, IBasicVideo, IVideoWindow]
 
 
-class IDeferredCommand(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IUnknown):
-    """IDeferredCommand"""
+class Library(object):
+    """ActiveMovie control type library"""
+    name = 'QuartzTypeLib'
+    _reg_typelib_ = ('{56A868B0-0AD4-11CE-B03A-0020AF0BA770}', 1, 0)
+
+
+class IQueueCommand(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IUnknown):
+    """IQueueCommand"""
     _case_insensitive_ = True
-    _iid_ = GUID('{56A868B8-0AD4-11CE-B03A-0020AF0BA770}')
+    _iid_ = GUID('{56A868B7-0AD4-11CE-B03A-0020AF0BA770}')
     _idlflags_ = []
 
     if TYPE_CHECKING:  # commembers
-        def Cancel(self) -> hints.Hresult: ...
-        def Confidence(self) -> hints.Incomplete: ...
-        def Postpone(self, newtime: hints.Incomplete) -> hints.Hresult: ...
-        def GetHResult(self) -> hints.Incomplete: ...
+        def InvokeAtStreamTime(self, time: hints.Incomplete, iid: hints.Incomplete, dispidMethod: hints.Incomplete, wFlags: hints.Incomplete, cArgs: hints.Incomplete, pDispParams: hints.Incomplete, pvarResult: hints.Incomplete) -> hints.Tuple['IDeferredCommand', hints.Incomplete, hints.Incomplete]: ...
+        def InvokeAtPresentationTime(self, time: hints.Incomplete, iid: hints.Incomplete, dispidMethod: hints.Incomplete, wFlags: hints.Incomplete, cArgs: hints.Incomplete, pDispParams: hints.Incomplete, pvarResult: hints.Incomplete) -> hints.Tuple['IDeferredCommand', hints.Incomplete, hints.Incomplete]: ...
 
 
-IDeferredCommand._methods_ = [
-    COMMETHOD([], HRESULT, 'Cancel'),
+IQueueCommand._methods_ = [
     COMMETHOD(
         [],
         HRESULT,
-        'Confidence',
-        (['out'], POINTER(c_int), 'pConfidence')
+        'InvokeAtStreamTime',
+        (['out'], POINTER(POINTER(IDeferredCommand)), 'pCmd'),
+        (['in'], c_double, 'time'),
+        (
+            ['in'],
+            POINTER(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.GUID),
+            'iid',
+        ),
+        (['in'], c_int, 'dispidMethod'),
+        (['in'], c_short, 'wFlags'),
+        (['in'], c_int, 'cArgs'),
+        (['in'], POINTER(VARIANT), 'pDispParams'),
+        (['in', 'out'], POINTER(VARIANT), 'pvarResult'),
+        (['out'], POINTER(c_short), 'puArgErr')
     ),
     COMMETHOD(
         [],
         HRESULT,
-        'Postpone',
-        (['in'], c_double, 'newtime')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'GetHResult',
-        (['out'], POINTER(HRESULT), 'phrResult')
+        'InvokeAtPresentationTime',
+        (['out'], POINTER(POINTER(IDeferredCommand)), 'pCmd'),
+        (['in'], c_double, 'time'),
+        (
+            ['in'],
+            POINTER(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.GUID),
+            'iid',
+        ),
+        (['in'], c_int, 'dispidMethod'),
+        (['in'], c_short, 'wFlags'),
+        (['in'], c_int, 'cArgs'),
+        (['in'], POINTER(VARIANT), 'pDispParams'),
+        (['in', 'out'], POINTER(VARIANT), 'pvarResult'),
+        (['out'], POINTER(c_short), 'puArgErr')
     ),
 ]
 
 ################################################################
-# code template for IDeferredCommand implementation
-# class IDeferredCommand_Impl(object):
-#     def Cancel(self):
+# code template for IQueueCommand implementation
+# class IQueueCommand_Impl(object):
+#     def InvokeAtStreamTime(self, time, iid, dispidMethod, wFlags, cArgs, pDispParams):
 #         '-no docstring-'
-#         #return 
+#         #return pCmd, pvarResult, puArgErr
 #
-#     def Confidence(self):
+#     def InvokeAtPresentationTime(self, time, iid, dispidMethod, wFlags, cArgs, pDispParams):
 #         '-no docstring-'
-#         #return pConfidence
-#
-#     def Postpone(self, newtime):
-#         '-no docstring-'
-#         #return 
-#
-#     def GetHResult(self):
-#         '-no docstring-'
-#         #return phrResult
+#         #return pCmd, pvarResult, puArgErr
 #
 
 IMediaEvent._methods_ = [
@@ -786,396 +898,6 @@ IMediaEvent._methods_ = [
 #     def FreeEventParams(self, lEvCode, lParam1, lParam2):
 #         '-no docstring-'
 #         #return 
-#
-
-
-class IMediaEventEx(IMediaEvent):
-    """IMediaEventEx interface"""
-    _case_insensitive_ = True
-    _iid_ = GUID('{56A868C0-0AD4-11CE-B03A-0020AF0BA770}')
-    _idlflags_ = []
-
-    if TYPE_CHECKING:  # commembers
-        def SetNotifyWindow(self, hwnd: hints.Incomplete, lMsg: hints.Incomplete, lInstanceData: hints.Incomplete) -> hints.Hresult: ...
-        def SetNotifyFlags(self, lNoNotifyFlags: hints.Incomplete) -> hints.Hresult: ...
-        def GetNotifyFlags(self) -> hints.Incomplete: ...
-
-
-IMediaEventEx._methods_ = [
-    COMMETHOD(
-        [],
-        HRESULT,
-        'SetNotifyWindow',
-        (['in'], LONG_PTR, 'hwnd'),
-        (['in'], c_int, 'lMsg'),
-        (['in'], LONG_PTR, 'lInstanceData')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'SetNotifyFlags',
-        (['in'], c_int, 'lNoNotifyFlags')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'GetNotifyFlags',
-        (['out'], POINTER(c_int), 'lplNoNotifyFlags')
-    ),
-]
-
-################################################################
-# code template for IMediaEventEx implementation
-# class IMediaEventEx_Impl(object):
-#     def SetNotifyWindow(self, hwnd, lMsg, lInstanceData):
-#         '-no docstring-'
-#         #return 
-#
-#     def SetNotifyFlags(self, lNoNotifyFlags):
-#         '-no docstring-'
-#         #return 
-#
-#     def GetNotifyFlags(self):
-#         '-no docstring-'
-#         #return lplNoNotifyFlags
-#
-
-
-class IQueueCommand(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IUnknown):
-    """IQueueCommand"""
-    _case_insensitive_ = True
-    _iid_ = GUID('{56A868B7-0AD4-11CE-B03A-0020AF0BA770}')
-    _idlflags_ = []
-
-    if TYPE_CHECKING:  # commembers
-        def InvokeAtStreamTime(self, time: hints.Incomplete, iid: hints.Incomplete, dispidMethod: hints.Incomplete, wFlags: hints.Incomplete, cArgs: hints.Incomplete, pDispParams: hints.Incomplete, pvarResult: hints.Incomplete) -> hints.Tuple['IDeferredCommand', hints.Incomplete, hints.Incomplete]: ...
-        def InvokeAtPresentationTime(self, time: hints.Incomplete, iid: hints.Incomplete, dispidMethod: hints.Incomplete, wFlags: hints.Incomplete, cArgs: hints.Incomplete, pDispParams: hints.Incomplete, pvarResult: hints.Incomplete) -> hints.Tuple['IDeferredCommand', hints.Incomplete, hints.Incomplete]: ...
-
-
-IQueueCommand._methods_ = [
-    COMMETHOD(
-        [],
-        HRESULT,
-        'InvokeAtStreamTime',
-        (['out'], POINTER(POINTER(IDeferredCommand)), 'pCmd'),
-        (['in'], c_double, 'time'),
-        (
-            ['in'],
-            POINTER(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.GUID),
-            'iid',
-        ),
-        (['in'], c_int, 'dispidMethod'),
-        (['in'], c_short, 'wFlags'),
-        (['in'], c_int, 'cArgs'),
-        (['in'], POINTER(VARIANT), 'pDispParams'),
-        (['in', 'out'], POINTER(VARIANT), 'pvarResult'),
-        (['out'], POINTER(c_short), 'puArgErr')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'InvokeAtPresentationTime',
-        (['out'], POINTER(POINTER(IDeferredCommand)), 'pCmd'),
-        (['in'], c_double, 'time'),
-        (
-            ['in'],
-            POINTER(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.GUID),
-            'iid',
-        ),
-        (['in'], c_int, 'dispidMethod'),
-        (['in'], c_short, 'wFlags'),
-        (['in'], c_int, 'cArgs'),
-        (['in'], POINTER(VARIANT), 'pDispParams'),
-        (['in', 'out'], POINTER(VARIANT), 'pvarResult'),
-        (['out'], POINTER(c_short), 'puArgErr')
-    ),
-]
-
-################################################################
-# code template for IQueueCommand implementation
-# class IQueueCommand_Impl(object):
-#     def InvokeAtStreamTime(self, time, iid, dispidMethod, wFlags, cArgs, pDispParams):
-#         '-no docstring-'
-#         #return pCmd, pvarResult, puArgErr
-#
-#     def InvokeAtPresentationTime(self, time, iid, dispidMethod, wFlags, cArgs, pDispParams):
-#         '-no docstring-'
-#         #return pCmd, pvarResult, puArgErr
-#
-
-IMediaPosition._methods_ = [
-    COMMETHOD(
-        [dispid(1610743808), 'propget'],
-        HRESULT,
-        'Duration',
-        (['out', 'retval'], POINTER(c_double), 'plength')
-    ),
-    COMMETHOD(
-        [dispid(1610743809), 'propput'],
-        HRESULT,
-        'CurrentPosition',
-        (['in'], c_double, 'pllTime')
-    ),
-    COMMETHOD(
-        [dispid(1610743809), 'propget'],
-        HRESULT,
-        'CurrentPosition',
-        (['out', 'retval'], POINTER(c_double), 'pllTime')
-    ),
-    COMMETHOD(
-        [dispid(1610743811), 'propget'],
-        HRESULT,
-        'StopTime',
-        (['out', 'retval'], POINTER(c_double), 'pllTime')
-    ),
-    COMMETHOD(
-        [dispid(1610743811), 'propput'],
-        HRESULT,
-        'StopTime',
-        (['in'], c_double, 'pllTime')
-    ),
-    COMMETHOD(
-        [dispid(1610743813), 'propget'],
-        HRESULT,
-        'PrerollTime',
-        (['out', 'retval'], POINTER(c_double), 'pllTime')
-    ),
-    COMMETHOD(
-        [dispid(1610743813), 'propput'],
-        HRESULT,
-        'PrerollTime',
-        (['in'], c_double, 'pllTime')
-    ),
-    COMMETHOD(
-        [dispid(1610743815), 'propput'],
-        HRESULT,
-        'Rate',
-        (['in'], c_double, 'pdRate')
-    ),
-    COMMETHOD(
-        [dispid(1610743815), 'propget'],
-        HRESULT,
-        'Rate',
-        (['out', 'retval'], POINTER(c_double), 'pdRate')
-    ),
-    COMMETHOD(
-        [dispid(1610743817)],
-        HRESULT,
-        'CanSeekForward',
-        (['out', 'retval'], POINTER(c_int), 'pCanSeekForward')
-    ),
-    COMMETHOD(
-        [dispid(1610743818)],
-        HRESULT,
-        'CanSeekBackward',
-        (['out', 'retval'], POINTER(c_int), 'pCanSeekBackward')
-    ),
-]
-
-################################################################
-# code template for IMediaPosition implementation
-# class IMediaPosition_Impl(object):
-#     @property
-#     def Duration(self):
-#         '-no docstring-'
-#         #return plength
-#
-#     def _get(self):
-#         '-no docstring-'
-#         #return pllTime
-#     def _set(self, pllTime):
-#         '-no docstring-'
-#     CurrentPosition = property(_get, _set, doc = _set.__doc__)
-#
-#     def _get(self):
-#         '-no docstring-'
-#         #return pllTime
-#     def _set(self, pllTime):
-#         '-no docstring-'
-#     StopTime = property(_get, _set, doc = _set.__doc__)
-#
-#     def _get(self):
-#         '-no docstring-'
-#         #return pllTime
-#     def _set(self, pllTime):
-#         '-no docstring-'
-#     PrerollTime = property(_get, _set, doc = _set.__doc__)
-#
-#     def _get(self):
-#         '-no docstring-'
-#         #return pdRate
-#     def _set(self, pdRate):
-#         '-no docstring-'
-#     Rate = property(_get, _set, doc = _set.__doc__)
-#
-#     def CanSeekForward(self):
-#         '-no docstring-'
-#         #return pCanSeekForward
-#
-#     def CanSeekBackward(self):
-#         '-no docstring-'
-#         #return pCanSeekBackward
-#
-
-IBasicAudio._methods_ = [
-    COMMETHOD(
-        [dispid(1610743808), 'propput'],
-        HRESULT,
-        'Volume',
-        (['in'], c_int, 'plVolume')
-    ),
-    COMMETHOD(
-        [dispid(1610743808), 'propget'],
-        HRESULT,
-        'Volume',
-        (['out', 'retval'], POINTER(c_int), 'plVolume')
-    ),
-    COMMETHOD(
-        [dispid(1610743810), 'propput'],
-        HRESULT,
-        'Balance',
-        (['in'], c_int, 'plBalance')
-    ),
-    COMMETHOD(
-        [dispid(1610743810), 'propget'],
-        HRESULT,
-        'Balance',
-        (['out', 'retval'], POINTER(c_int), 'plBalance')
-    ),
-]
-
-################################################################
-# code template for IBasicAudio implementation
-# class IBasicAudio_Impl(object):
-#     def _get(self):
-#         '-no docstring-'
-#         #return plVolume
-#     def _set(self, plVolume):
-#         '-no docstring-'
-#     Volume = property(_get, _set, doc = _set.__doc__)
-#
-#     def _get(self):
-#         '-no docstring-'
-#         #return plBalance
-#     def _set(self, plBalance):
-#         '-no docstring-'
-#     Balance = property(_get, _set, doc = _set.__doc__)
-#
-
-
-class IFilterInfo(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IDispatch):
-    """FilterInfo"""
-    _case_insensitive_ = True
-    _iid_ = GUID('{56A868BA-0AD4-11CE-B03A-0020AF0BA770}')
-    _idlflags_ = ['dual', 'oleautomation']
-
-    if TYPE_CHECKING:  # commembers
-        def FindPin(self, strPinID: hints.Incomplete) -> hints.Incomplete: ...
-        def _get_Name(self) -> hints.Incomplete: ...
-        Name = hints.normal_property(_get_Name)
-        def _get_VendorInfo(self) -> hints.Incomplete: ...
-        VendorInfo = hints.normal_property(_get_VendorInfo)
-        def _get_Filter(self) -> hints.Incomplete: ...
-        Filter = hints.normal_property(_get_Filter)
-        def _get_Pins(self) -> hints.Incomplete: ...
-        Pins = hints.normal_property(_get_Pins)
-        def _get_IsFileSource(self) -> hints.Incomplete: ...
-        IsFileSource = hints.normal_property(_get_IsFileSource)
-        def _get_Filename(self) -> hints.Incomplete: ...
-        def _set_Filename(self, pstrFilename: hints.Incomplete) -> hints.Hresult: ...
-        Filename = hints.normal_property(_get_Filename, _set_Filename)
-
-
-IFilterInfo._methods_ = [
-    COMMETHOD(
-        [dispid(1610743808)],
-        HRESULT,
-        'FindPin',
-        (['in'], BSTR, 'strPinID'),
-        (['out'], POINTER(POINTER(IDispatch)), 'ppUnk')
-    ),
-    COMMETHOD(
-        [dispid(1610743809), 'propget'],
-        HRESULT,
-        'Name',
-        (['out', 'retval'], POINTER(BSTR), 'strName')
-    ),
-    COMMETHOD(
-        [dispid(1610743810), 'propget'],
-        HRESULT,
-        'VendorInfo',
-        (['out', 'retval'], POINTER(BSTR), 'strVendorInfo')
-    ),
-    COMMETHOD(
-        [dispid(1610743811), 'propget'],
-        HRESULT,
-        'Filter',
-        (['out', 'retval'], POINTER(POINTER(IUnknown)), 'ppUnk')
-    ),
-    COMMETHOD(
-        [dispid(1610743812), 'propget'],
-        HRESULT,
-        'Pins',
-        (['out', 'retval'], POINTER(POINTER(IDispatch)), 'ppUnk')
-    ),
-    COMMETHOD(
-        [dispid(1610743813), 'propget'],
-        HRESULT,
-        'IsFileSource',
-        (['out', 'retval'], POINTER(c_int), 'pbIsSource')
-    ),
-    COMMETHOD(
-        [dispid(1610743814), 'propget'],
-        HRESULT,
-        'Filename',
-        (['out', 'retval'], POINTER(BSTR), 'pstrFilename')
-    ),
-    COMMETHOD(
-        [dispid(1610743814), 'propput'],
-        HRESULT,
-        'Filename',
-        (['in'], BSTR, 'pstrFilename')
-    ),
-]
-
-################################################################
-# code template for IFilterInfo implementation
-# class IFilterInfo_Impl(object):
-#     def FindPin(self, strPinID):
-#         '-no docstring-'
-#         #return ppUnk
-#
-#     @property
-#     def Name(self):
-#         '-no docstring-'
-#         #return strName
-#
-#     @property
-#     def VendorInfo(self):
-#         '-no docstring-'
-#         #return strVendorInfo
-#
-#     @property
-#     def Filter(self):
-#         '-no docstring-'
-#         #return ppUnk
-#
-#     @property
-#     def Pins(self):
-#         '-no docstring-'
-#         #return ppUnk
-#
-#     @property
-#     def IsFileSource(self):
-#         '-no docstring-'
-#         #return pbIsSource
-#
-#     def _get(self):
-#         '-no docstring-'
-#         #return pstrFilename
-#     def _set(self, pstrFilename):
-#         '-no docstring-'
-#     Filename = property(_get, _set, doc = _set.__doc__)
 #
 
 
@@ -1274,6 +996,140 @@ IAMStats._methods_ = [
 #     def AddValue(self, lIndex, dValue):
 #         '-no docstring-'
 #         #return 
+#
+
+
+class IAMCollection(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IDispatch):
+    """Collection"""
+    _case_insensitive_ = True
+    _iid_ = GUID('{56A868B9-0AD4-11CE-B03A-0020AF0BA770}')
+    _idlflags_ = ['dual', 'oleautomation']
+
+    if TYPE_CHECKING:  # commembers
+        def _get_Count(self) -> hints.Incomplete: ...
+        Count = hints.normal_property(_get_Count)
+        __len__ = hints.to_dunder_len(Count)
+        def Item(self, lItem: hints.Incomplete) -> hints.Incomplete: ...
+        __call__ = hints.to_dunder_call(Item)
+        __getitem__ = hints.to_dunder_getitem(Item)
+        __setitem__ = hints.to_dunder_setitem(Item)
+        def _get__NewEnum(self) -> hints.Incomplete: ...
+        _NewEnum = hints.normal_property(_get__NewEnum)
+        __iter__ = hints.to_dunder_iter(_NewEnum)
+
+
+IAMCollection._methods_ = [
+    COMMETHOD(
+        [dispid(1610743808), 'propget'],
+        HRESULT,
+        'Count',
+        (['out', 'retval'], POINTER(c_int), 'plCount')
+    ),
+    COMMETHOD(
+        [dispid(1610743809)],
+        HRESULT,
+        'Item',
+        (['in'], c_int, 'lItem'),
+        (['out'], POINTER(POINTER(IUnknown)), 'ppUnk')
+    ),
+    COMMETHOD(
+        [dispid(1610743810), 'propget'],
+        HRESULT,
+        '_NewEnum',
+        (['out', 'retval'], POINTER(POINTER(IUnknown)), 'ppUnk')
+    ),
+]
+
+################################################################
+# code template for IAMCollection implementation
+# class IAMCollection_Impl(object):
+#     @property
+#     def Count(self):
+#         '-no docstring-'
+#         #return plCount
+#
+#     def Item(self, lItem):
+#         '-no docstring-'
+#         #return ppUnk
+#
+#     @property
+#     def _NewEnum(self):
+#         '-no docstring-'
+#         #return ppUnk
+#
+
+IBasicAudio._methods_ = [
+    COMMETHOD(
+        [dispid(1610743808), 'propput'],
+        HRESULT,
+        'Volume',
+        (['in'], c_int, 'plVolume')
+    ),
+    COMMETHOD(
+        [dispid(1610743808), 'propget'],
+        HRESULT,
+        'Volume',
+        (['out', 'retval'], POINTER(c_int), 'plVolume')
+    ),
+    COMMETHOD(
+        [dispid(1610743810), 'propput'],
+        HRESULT,
+        'Balance',
+        (['in'], c_int, 'plBalance')
+    ),
+    COMMETHOD(
+        [dispid(1610743810), 'propget'],
+        HRESULT,
+        'Balance',
+        (['out', 'retval'], POINTER(c_int), 'plBalance')
+    ),
+]
+
+################################################################
+# code template for IBasicAudio implementation
+# class IBasicAudio_Impl(object):
+#     def _get(self):
+#         '-no docstring-'
+#         #return plVolume
+#     def _set(self, plVolume):
+#         '-no docstring-'
+#     Volume = property(_get, _set, doc = _set.__doc__)
+#
+#     def _get(self):
+#         '-no docstring-'
+#         #return plBalance
+#     def _set(self, plBalance):
+#         '-no docstring-'
+#     Balance = property(_get, _set, doc = _set.__doc__)
+#
+
+
+class IBasicVideo2(IBasicVideo):
+    """IBasicVideo2"""
+    _case_insensitive_ = True
+    _iid_ = GUID('{329BB360-F6EA-11D1-9038-00A0C9697298}')
+    _idlflags_ = []
+
+    if TYPE_CHECKING:  # commembers
+        def GetPreferredAspectRatio(self) -> hints.Tuple[hints.Incomplete, hints.Incomplete]: ...
+
+
+IBasicVideo2._methods_ = [
+    COMMETHOD(
+        [],
+        HRESULT,
+        'GetPreferredAspectRatio',
+        (['out'], POINTER(c_int), 'plAspectX'),
+        (['out'], POINTER(c_int), 'plAspectY')
+    ),
+]
+
+################################################################
+# code template for IBasicVideo2 implementation
+# class IBasicVideo2_Impl(object):
+#     def GetPreferredAspectRatio(self):
+#         '-no docstring-'
+#         #return plAspectX, plAspectY
 #
 
 IVideoWindow._methods_ = [
@@ -1672,47 +1528,199 @@ IVideoWindow._methods_ = [
 #         #return CursorHidden
 #
 
-
-class IMediaTypeInfo(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IDispatch):
-    """Media Type"""
-    _case_insensitive_ = True
-    _iid_ = GUID('{56A868BC-0AD4-11CE-B03A-0020AF0BA770}')
-    _idlflags_ = ['dual', 'oleautomation']
-
-    if TYPE_CHECKING:  # commembers
-        def _get_Type(self) -> hints.Incomplete: ...
-        Type = hints.normal_property(_get_Type)
-        def _get_Subtype(self) -> hints.Incomplete: ...
-        Subtype = hints.normal_property(_get_Subtype)
-
-
-IMediaTypeInfo._methods_ = [
+IMediaPosition._methods_ = [
     COMMETHOD(
         [dispid(1610743808), 'propget'],
         HRESULT,
-        'Type',
-        (['out', 'retval'], POINTER(BSTR), 'strType')
+        'Duration',
+        (['out', 'retval'], POINTER(c_double), 'plength')
+    ),
+    COMMETHOD(
+        [dispid(1610743809), 'propput'],
+        HRESULT,
+        'CurrentPosition',
+        (['in'], c_double, 'pllTime')
     ),
     COMMETHOD(
         [dispid(1610743809), 'propget'],
         HRESULT,
-        'Subtype',
-        (['out', 'retval'], POINTER(BSTR), 'strType')
+        'CurrentPosition',
+        (['out', 'retval'], POINTER(c_double), 'pllTime')
+    ),
+    COMMETHOD(
+        [dispid(1610743811), 'propget'],
+        HRESULT,
+        'StopTime',
+        (['out', 'retval'], POINTER(c_double), 'pllTime')
+    ),
+    COMMETHOD(
+        [dispid(1610743811), 'propput'],
+        HRESULT,
+        'StopTime',
+        (['in'], c_double, 'pllTime')
+    ),
+    COMMETHOD(
+        [dispid(1610743813), 'propget'],
+        HRESULT,
+        'PrerollTime',
+        (['out', 'retval'], POINTER(c_double), 'pllTime')
+    ),
+    COMMETHOD(
+        [dispid(1610743813), 'propput'],
+        HRESULT,
+        'PrerollTime',
+        (['in'], c_double, 'pllTime')
+    ),
+    COMMETHOD(
+        [dispid(1610743815), 'propput'],
+        HRESULT,
+        'Rate',
+        (['in'], c_double, 'pdRate')
+    ),
+    COMMETHOD(
+        [dispid(1610743815), 'propget'],
+        HRESULT,
+        'Rate',
+        (['out', 'retval'], POINTER(c_double), 'pdRate')
+    ),
+    COMMETHOD(
+        [dispid(1610743817)],
+        HRESULT,
+        'CanSeekForward',
+        (['out', 'retval'], POINTER(c_int), 'pCanSeekForward')
+    ),
+    COMMETHOD(
+        [dispid(1610743818)],
+        HRESULT,
+        'CanSeekBackward',
+        (['out', 'retval'], POINTER(c_int), 'pCanSeekBackward')
     ),
 ]
 
 ################################################################
-# code template for IMediaTypeInfo implementation
-# class IMediaTypeInfo_Impl(object):
+# code template for IMediaPosition implementation
+# class IMediaPosition_Impl(object):
 #     @property
-#     def Type(self):
+#     def Duration(self):
 #         '-no docstring-'
-#         #return strType
+#         #return plength
+#
+#     def _get(self):
+#         '-no docstring-'
+#         #return pllTime
+#     def _set(self, pllTime):
+#         '-no docstring-'
+#     CurrentPosition = property(_get, _set, doc = _set.__doc__)
+#
+#     def _get(self):
+#         '-no docstring-'
+#         #return pllTime
+#     def _set(self, pllTime):
+#         '-no docstring-'
+#     StopTime = property(_get, _set, doc = _set.__doc__)
+#
+#     def _get(self):
+#         '-no docstring-'
+#         #return pllTime
+#     def _set(self, pllTime):
+#         '-no docstring-'
+#     PrerollTime = property(_get, _set, doc = _set.__doc__)
+#
+#     def _get(self):
+#         '-no docstring-'
+#         #return pdRate
+#     def _set(self, pdRate):
+#         '-no docstring-'
+#     Rate = property(_get, _set, doc = _set.__doc__)
+#
+#     def CanSeekForward(self):
+#         '-no docstring-'
+#         #return pCanSeekForward
+#
+#     def CanSeekBackward(self):
+#         '-no docstring-'
+#         #return pCanSeekBackward
+#
+
+IMediaControl._methods_ = [
+    COMMETHOD([dispid(1610743808)], HRESULT, 'Run'),
+    COMMETHOD([dispid(1610743809)], HRESULT, 'Pause'),
+    COMMETHOD([dispid(1610743810)], HRESULT, 'Stop'),
+    COMMETHOD(
+        [dispid(1610743811)],
+        HRESULT,
+        'GetState',
+        (['in'], c_int, 'msTimeout'),
+        (['out'], POINTER(c_int), 'pfs')
+    ),
+    COMMETHOD(
+        [dispid(1610743812)],
+        HRESULT,
+        'RenderFile',
+        (['in'], BSTR, 'strFilename')
+    ),
+    COMMETHOD(
+        [dispid(1610743813)],
+        HRESULT,
+        'AddSourceFilter',
+        (['in'], BSTR, 'strFilename'),
+        (['out'], POINTER(POINTER(IDispatch)), 'ppUnk')
+    ),
+    COMMETHOD(
+        [dispid(1610743814), 'propget'],
+        HRESULT,
+        'FilterCollection',
+        (['out', 'retval'], POINTER(POINTER(IDispatch)), 'ppUnk')
+    ),
+    COMMETHOD(
+        [dispid(1610743815), 'propget'],
+        HRESULT,
+        'RegFilterCollection',
+        (['out', 'retval'], POINTER(POINTER(IDispatch)), 'ppUnk')
+    ),
+    COMMETHOD([dispid(1610743816)], HRESULT, 'StopWhenReady'),
+]
+
+################################################################
+# code template for IMediaControl implementation
+# class IMediaControl_Impl(object):
+#     def Run(self):
+#         '-no docstring-'
+#         #return 
+#
+#     def Pause(self):
+#         '-no docstring-'
+#         #return 
+#
+#     def Stop(self):
+#         '-no docstring-'
+#         #return 
+#
+#     def GetState(self, msTimeout):
+#         '-no docstring-'
+#         #return pfs
+#
+#     def RenderFile(self, strFilename):
+#         '-no docstring-'
+#         #return 
+#
+#     def AddSourceFilter(self, strFilename):
+#         '-no docstring-'
+#         #return ppUnk
 #
 #     @property
-#     def Subtype(self):
+#     def FilterCollection(self):
 #         '-no docstring-'
-#         #return strType
+#         #return ppUnk
+#
+#     @property
+#     def RegFilterCollection(self):
+#         '-no docstring-'
+#         #return ppUnk
+#
+#     def StopWhenReady(self):
+#         '-no docstring-'
+#         #return 
 #
 
 
@@ -1924,72 +1932,65 @@ IRegFilterInfo._methods_ = [
 #
 
 
-class IAMCollection(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IDispatch):
-    """Collection"""
+class IMediaEventEx(IMediaEvent):
+    """IMediaEventEx interface"""
     _case_insensitive_ = True
-    _iid_ = GUID('{56A868B9-0AD4-11CE-B03A-0020AF0BA770}')
-    _idlflags_ = ['dual', 'oleautomation']
+    _iid_ = GUID('{56A868C0-0AD4-11CE-B03A-0020AF0BA770}')
+    _idlflags_ = []
 
     if TYPE_CHECKING:  # commembers
-        def _get_Count(self) -> hints.Incomplete: ...
-        Count = hints.normal_property(_get_Count)
-        __len__ = hints.to_dunder_len(Count)
-        def Item(self, lItem: hints.Incomplete) -> hints.Incomplete: ...
-        __call__ = hints.to_dunder_call(Item)
-        __getitem__ = hints.to_dunder_getitem(Item)
-        __setitem__ = hints.to_dunder_setitem(Item)
-        def _get__NewEnum(self) -> hints.Incomplete: ...
-        _NewEnum = hints.normal_property(_get__NewEnum)
-        __iter__ = hints.to_dunder_iter(_NewEnum)
+        def SetNotifyWindow(self, hwnd: hints.Incomplete, lMsg: hints.Incomplete, lInstanceData: hints.Incomplete) -> hints.Hresult: ...
+        def SetNotifyFlags(self, lNoNotifyFlags: hints.Incomplete) -> hints.Hresult: ...
+        def GetNotifyFlags(self) -> hints.Incomplete: ...
 
 
-IAMCollection._methods_ = [
+IMediaEventEx._methods_ = [
     COMMETHOD(
-        [dispid(1610743808), 'propget'],
+        [],
         HRESULT,
-        'Count',
-        (['out', 'retval'], POINTER(c_int), 'plCount')
+        'SetNotifyWindow',
+        (['in'], LONG_PTR, 'hwnd'),
+        (['in'], c_int, 'lMsg'),
+        (['in'], LONG_PTR, 'lInstanceData')
     ),
     COMMETHOD(
-        [dispid(1610743809)],
+        [],
         HRESULT,
-        'Item',
-        (['in'], c_int, 'lItem'),
-        (['out'], POINTER(POINTER(IUnknown)), 'ppUnk')
+        'SetNotifyFlags',
+        (['in'], c_int, 'lNoNotifyFlags')
     ),
     COMMETHOD(
-        [dispid(1610743810), 'propget'],
+        [],
         HRESULT,
-        '_NewEnum',
-        (['out', 'retval'], POINTER(POINTER(IUnknown)), 'ppUnk')
+        'GetNotifyFlags',
+        (['out'], POINTER(c_int), 'lplNoNotifyFlags')
     ),
 ]
 
 ################################################################
-# code template for IAMCollection implementation
-# class IAMCollection_Impl(object):
-#     @property
-#     def Count(self):
+# code template for IMediaEventEx implementation
+# class IMediaEventEx_Impl(object):
+#     def SetNotifyWindow(self, hwnd, lMsg, lInstanceData):
 #         '-no docstring-'
-#         #return plCount
+#         #return 
 #
-#     def Item(self, lItem):
+#     def SetNotifyFlags(self, lNoNotifyFlags):
 #         '-no docstring-'
-#         #return ppUnk
+#         #return 
 #
-#     @property
-#     def _NewEnum(self):
+#     def GetNotifyFlags(self):
 #         '-no docstring-'
-#         #return ppUnk
+#         #return lplNoNotifyFlags
 #
 
 __all__ = [
-    'IBasicAudio', 'IBasicVideo', 'IMediaPosition', 'typelib_path',
-    'IRegFilterInfo', 'IMediaEvent', 'IDeferredCommand', 'IAMStats',
-    'IPinInfo', 'IMediaEventEx', 'IQueueCommand', 'IMediaTypeInfo',
-    'IAMCollection', 'IFilterInfo', 'IBasicVideo2', 'IVideoWindow',
-    'LONG_PTR', 'IMediaControl', 'Library', 'FilgraphManager'
+    'typelib_path', 'IAMCollection', 'IPinInfo', 'IMediaEvent',
+    'IBasicVideo2', 'LONG_PTR', 'IDeferredCommand', 'IMediaTypeInfo',
+    'IRegFilterInfo', 'Library', 'IMediaEventEx', 'IBasicVideo',
+    'IBasicAudio', 'IAMStats', 'IMediaControl', 'IVideoWindow',
+    'IFilterInfo', 'IMediaPosition', 'FilgraphManager',
+    'IQueueCommand'
 ]
 
-_check_version('1.4.12', 1756562057.879915)
+_check_version('1.4.12', 1759257068.554078)
 

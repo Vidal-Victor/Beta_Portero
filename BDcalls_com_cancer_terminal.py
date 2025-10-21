@@ -1,9 +1,14 @@
 import sys
 import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "lib"))
 import mysql.connector
 import speech_recognition as sr
 import re
 from datetime import datetime
+from Entrada import Portero_speak_entrada, Entrada_erro
+from Saida import Portero_speak_saida, Saida_erro
+
+#atualizçãpo linha 169, 36 e 46
 
 def Portero_verif(text, e_s):
     try:
@@ -24,15 +29,28 @@ def Portero_verif(text, e_s):
         if resultado:
             print(f"Placa encontrada: {resultado}")
             if e_s == 2:
-                from Saida import Portero_speak_saida
-                Portero_speak_saida(texto)
+                cursor.execute("Select Status from veiculo where Placa = %s", (texto,))
+                status = cursor.fetchone()
+                if status and status[0] == 1:
+                    Portero_speak_saida(status[0])
+                    return True
+                else:
+                    print("Erro: Veículo já está fora.")
+                    Saida_erro()
+                    return False
             elif e_s == 1:
-                from Entrada import Portero_speak_entrada
-                Portero_speak_entrada(texto)
+                cursor.execute("Select Status from veiculo where Placa = %s", (texto,))
+                status = cursor.fetchone()
+                if status and status[0] == 2:
+                    Portero_speak_entrada(status[0])
+                    return True
+                else:
+                    print("Erro: Veículo já está dentro.")
+                    Entrada_erro()
+                    return False
             else:
                 print("Erro: Tipo de verificação inválido.")
                 return False
-            return True
         else:
             print(f"Nenhuma placa encontrada: {texto}.")
             return False
@@ -99,6 +117,8 @@ def Portero_entrada(placa, nova_km):
 
         if cursor.rowcount > 0:
             print(f"Entrada registrada com sucesso para '{placa}'.")
+            cursor.execute("UPDATE veiculo SET Status = %s WHERE idveiculo = %s", (1, id_veiculo))
+            conexao.commit()
             return True
         else:
             print("Erro ao registrar entrada.")
@@ -164,6 +184,7 @@ def Portero_saida(placa, cod_mot, det_mot):
                 "INSERT INTO registro_entrada (idVeiculo, idUsuario, idRegistroSaida) VALUES (%s, %s, %s)",
                 (id_veiculo, id_usuario, reg_saida)
             )
+            cursor.execute("UPDATE veiculo SET Status = %s WHERE idveiculo = %s", (2, id_veiculo))
             conexao.commit()
             return True
         else:

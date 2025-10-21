@@ -1,12 +1,10 @@
 import sys
 import os
-from BDcalls import Portero_verif
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "lib"))
 import cv2 
 import numpy as np
 import pytesseract
 from PIL import Image, ImageTk
-
+from BDcalls import Portero_verif
 
 def Portero_cam(frame_widget, video, placa_coords, e_s):
     ret, frame = video.read()

@@ -7,9 +7,9 @@ from comtypes import (
     helpstring, IPersist, IUnknown
 )
 from ctypes import HRESULT
-from comtypes.typeinfo import ULONG_PTR
-from ctypes.wintypes import _FILETIME, _LARGE_INTEGER, _ULARGE_INTEGER
 from comtypes.stream import ISequentialStream
+from ctypes.wintypes import _FILETIME, _LARGE_INTEGER, _ULARGE_INTEGER
+from comtypes.typeinfo import ULONG_PTR
 from comtypes.automation import VARIANT
 from comtypes.persist import IErrorLog, IPropertyBag
 from typing import TYPE_CHECKING
@@ -23,11 +23,10 @@ typelib_path = 'C:\\Windows\\System32\\qedit.dll'
 WSTRING = c_wchar_p
 LONG_PTR = c_longlong
 
-# values for enumeration '_FilterState'
-State_Stopped = 0
-State_Paused = 1
-State_Running = 2
-_FilterState = c_int  # enum
+# values for enumeration '_PinDirection'
+PINDIR_INPUT = 0
+PINDIR_OUTPUT = 1
+_PinDirection = c_int  # enum
 
 # values for enumeration '__MIDL___MIDL_itf_qedit_0000_0000_0007'
 TIMELINE_MAJOR_TYPE_COMPOSITE = 1
@@ -38,10 +37,11 @@ TIMELINE_MAJOR_TYPE_EFFECT = 16
 TIMELINE_MAJOR_TYPE_GROUP = 128
 __MIDL___MIDL_itf_qedit_0000_0000_0007 = c_int  # enum
 
-# values for enumeration '_PinDirection'
-PINDIR_INPUT = 0
-PINDIR_OUTPUT = 1
-_PinDirection = c_int  # enum
+# values for enumeration '_FilterState'
+State_Stopped = 0
+State_Paused = 1
+State_Running = 2
+_FilterState = c_int  # enum
 
 # aliases for enums
 TIMELINE_MAJOR_TYPE = __MIDL___MIDL_itf_qedit_0000_0000_0007
@@ -90,170 +90,130 @@ IMediaLocator._methods_ = [
 #
 
 
-class IAMTimelineTransable(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IUnknown):
-    """IAMTimelineTransable Interface"""
+class IEnumPins(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IUnknown):
     _case_insensitive_ = True
-    _iid_ = GUID('{378FA386-622E-11D2-8CAD-00A024580902}')
+    _iid_ = GUID('{56A86892-0AD4-11CE-B03A-0020AF0BA770}')
+    _idlflags_ = []
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        item, fetched = self.Next(1)
+        if fetched:
+            return item
+        raise StopIteration
+
+    def __getitem__(self, index):
+        self.Reset()
+        self.Skip(index)
+        item, fetched = self.Next(1)
+        if fetched:
+            return item
+        raise IndexError(index)
+
+    if TYPE_CHECKING:  # commembers
+        def Next(self, cPins: hints.Incomplete) -> hints.Tuple['IPin', hints.Incomplete]: ...
+        def Skip(self, cPins: hints.Incomplete) -> hints.Hresult: ...
+        def Reset(self) -> hints.Hresult: ...
+        def Clone(self) -> 'IEnumPins': ...
+
+
+class IPin(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IUnknown):
+    _case_insensitive_ = True
+    _iid_ = GUID('{56A86891-0AD4-11CE-B03A-0020AF0BA770}')
     _idlflags_ = []
 
     if TYPE_CHECKING:  # commembers
-        def TransAdd(self, pTrans: hints.Incomplete) -> hints.Hresult: ...
-        def TransGetCount(self, pCount: hints.Incomplete) -> hints.Hresult: ...
-        def GetNextTrans(self, pInOut: hints.Incomplete) -> 'IAMTimelineObj': ...
-        def GetNextTrans2(self, pInOut: hints.Incomplete) -> 'IAMTimelineObj': ...
-        def GetTransAtTime(self, Time: hints.Incomplete, SearchDirection: hints.Incomplete) -> 'IAMTimelineObj': ...
-        def GetTransAtTime2(self, Time: hints.Incomplete, SearchDirection: hints.Incomplete) -> 'IAMTimelineObj': ...
+        def Connect(self, pReceivePin: hints.Incomplete, pmt: hints.Incomplete) -> hints.Hresult: ...
+        def ReceiveConnection(self, pConnector: hints.Incomplete, pmt: hints.Incomplete) -> hints.Hresult: ...
+        def Disconnect(self) -> hints.Hresult: ...
+        def ConnectedTo(self) -> 'IPin': ...
+        def ConnectionMediaType(self) -> hints.Incomplete: ...
+        def QueryPinInfo(self) -> hints.Incomplete: ...
+        def QueryDirection(self) -> hints.Incomplete: ...
+        def QueryId(self) -> hints.Incomplete: ...
+        def QueryAccept(self, pmt: hints.Incomplete) -> hints.Hresult: ...
+        def EnumMediaTypes(self) -> 'IEnumMediaTypes': ...
+        def QueryInternalConnections(self, nPin: hints.Incomplete) -> hints.Tuple['IPin', hints.Incomplete]: ...
+        def EndOfStream(self) -> hints.Hresult: ...
+        def BeginFlush(self) -> hints.Hresult: ...
+        def EndFlush(self) -> hints.Hresult: ...
+        def NewSegment(self, tStart: hints.Incomplete, tStop: hints.Incomplete, dRate: hints.Incomplete) -> hints.Hresult: ...
 
 
-class IAMTimelineObj(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IUnknown):
-    """IAMTimelineObj Interface"""
-    _case_insensitive_ = True
-    _iid_ = GUID('{78530B77-61F9-11D2-8CAD-00A024580902}')
-    _idlflags_ = []
-
-    if TYPE_CHECKING:  # commembers
-        def GetStartStop(self, pStart: hints.Incomplete, pStop: hints.Incomplete) -> hints.Hresult: ...
-        def GetStartStop2(self, pStart: hints.Incomplete, pStop: hints.Incomplete) -> hints.Hresult: ...
-        def FixTimes(self, pStart: hints.Incomplete, pStop: hints.Incomplete) -> hints.Hresult: ...
-        def FixTimes2(self, pStart: hints.Incomplete, pStop: hints.Incomplete) -> hints.Hresult: ...
-        def SetStartStop(self, Start: hints.Incomplete, Stop: hints.Incomplete) -> hints.Hresult: ...
-        def SetStartStop2(self, Start: hints.Incomplete, Stop: hints.Incomplete) -> hints.Hresult: ...
-        def GetPropertySetter(self) -> 'IPropertySetter': ...
-        def SetPropertySetter(self, newVal: hints.Incomplete) -> hints.Hresult: ...
-        def GetSubObject(self) -> hints.Incomplete: ...
-        def SetSubObject(self, newVal: hints.Incomplete) -> hints.Hresult: ...
-        def SetSubObjectGUID(self, newVal: hints.Incomplete) -> hints.Hresult: ...
-        def SetSubObjectGUIDB(self, newVal: hints.Incomplete) -> hints.Hresult: ...
-        def GetSubObjectGUID(self, pVal: hints.Incomplete) -> hints.Hresult: ...
-        def GetSubObjectGUIDB(self) -> hints.Incomplete: ...
-        def GetSubObjectLoaded(self, pVal: hints.Incomplete) -> hints.Hresult: ...
-        def GetTimelineType(self, pVal: hints.Incomplete) -> hints.Hresult: ...
-        def SetTimelineType(self, newVal: hints.Incomplete) -> hints.Hresult: ...
-        def GetUserID(self, pVal: hints.Incomplete) -> hints.Hresult: ...
-        def SetUserID(self, newVal: hints.Incomplete) -> hints.Hresult: ...
-        def GetGenID(self, pVal: hints.Incomplete) -> hints.Hresult: ...
-        def GetUserName(self) -> hints.Incomplete: ...
-        def SetUserName(self, newVal: hints.Incomplete) -> hints.Hresult: ...
-        def GetUserData(self, pData: hints.Incomplete, pSize: hints.Incomplete) -> hints.Hresult: ...
-        def SetUserData(self, pData: hints.Incomplete, Size: hints.Incomplete) -> hints.Hresult: ...
-        def GetMuted(self, pVal: hints.Incomplete) -> hints.Hresult: ...
-        def SetMuted(self, newVal: hints.Incomplete) -> hints.Hresult: ...
-        def GetLocked(self, pVal: hints.Incomplete) -> hints.Hresult: ...
-        def SetLocked(self, newVal: hints.Incomplete) -> hints.Hresult: ...
-        def GetDirtyRange(self, pStart: hints.Incomplete, pStop: hints.Incomplete) -> hints.Hresult: ...
-        def GetDirtyRange2(self, pStart: hints.Incomplete, pStop: hints.Incomplete) -> hints.Hresult: ...
-        def SetDirtyRange(self, Start: hints.Incomplete, Stop: hints.Incomplete) -> hints.Hresult: ...
-        def SetDirtyRange2(self, Start: hints.Incomplete, Stop: hints.Incomplete) -> hints.Hresult: ...
-        def ClearDirty(self) -> hints.Hresult: ...
-        def Remove(self) -> hints.Hresult: ...
-        def RemoveAll(self) -> hints.Hresult: ...
-        def GetTimelineNoRef(self, ppResult: hints.Incomplete) -> hints.Hresult: ...
-        def GetGroupIBelongTo(self) -> 'IAMTimelineGroup': ...
-        def GetEmbedDepth(self, pVal: hints.Incomplete) -> hints.Hresult: ...
-
-
-IAMTimelineTransable._methods_ = [
+IEnumPins._methods_ = [
     COMMETHOD(
-        [helpstring('method TransAdd')],
+        [],
         HRESULT,
-        'TransAdd',
-        ([], POINTER(IAMTimelineObj), 'pTrans')
+        'Next',
+        (['in'], c_ulong, 'cPins'),
+        (['out'], POINTER(POINTER(IPin)), 'ppPins'),
+        (['out'], POINTER(c_ulong), 'pcFetched')
     ),
     COMMETHOD(
-        [helpstring('method TransGetCount')],
+        [],
         HRESULT,
-        'TransGetCount',
-        ([], POINTER(c_int), 'pCount')
+        'Skip',
+        (['in'], c_ulong, 'cPins')
     ),
+    COMMETHOD([], HRESULT, 'Reset'),
     COMMETHOD(
-        [helpstring('method GetNextTrans')],
+        [],
         HRESULT,
-        'GetNextTrans',
-        (['out'], POINTER(POINTER(IAMTimelineObj)), 'ppTrans'),
-        ([], POINTER(c_longlong), 'pInOut')
-    ),
-    COMMETHOD(
-        [helpstring('method GetNextTrans2')],
-        HRESULT,
-        'GetNextTrans2',
-        (['out'], POINTER(POINTER(IAMTimelineObj)), 'ppTrans'),
-        ([], POINTER(c_double), 'pInOut')
-    ),
-    COMMETHOD(
-        [helpstring('method GetTransAtTime')],
-        HRESULT,
-        'GetTransAtTime',
-        (['out'], POINTER(POINTER(IAMTimelineObj)), 'ppObj'),
-        ([], c_longlong, 'Time'),
-        ([], c_int, 'SearchDirection')
-    ),
-    COMMETHOD(
-        [helpstring('method GetTransAtTime2')],
-        HRESULT,
-        'GetTransAtTime2',
-        (['out'], POINTER(POINTER(IAMTimelineObj)), 'ppObj'),
-        ([], c_double, 'Time'),
-        ([], c_int, 'SearchDirection')
+        'Clone',
+        (['out'], POINTER(POINTER(IEnumPins)), 'ppEnum')
     ),
 ]
 
 ################################################################
-# code template for IAMTimelineTransable implementation
-# class IAMTimelineTransable_Impl(object):
-#     def TransAdd(self, pTrans):
-#         'method TransAdd'
+# code template for IEnumPins implementation
+# class IEnumPins_Impl(object):
+#     def Next(self, cPins):
+#         '-no docstring-'
+#         #return ppPins, pcFetched
+#
+#     def Skip(self, cPins):
+#         '-no docstring-'
 #         #return 
 #
-#     def TransGetCount(self, pCount):
-#         'method TransGetCount'
+#     def Reset(self):
+#         '-no docstring-'
 #         #return 
 #
-#     def GetNextTrans(self, pInOut):
-#         'method GetNextTrans'
-#         #return ppTrans
-#
-#     def GetNextTrans2(self, pInOut):
-#         'method GetNextTrans2'
-#         #return ppTrans
-#
-#     def GetTransAtTime(self, Time, SearchDirection):
-#         'method GetTransAtTime'
-#         #return ppObj
-#
-#     def GetTransAtTime2(self, Time, SearchDirection):
-#         'method GetTransAtTime2'
-#         #return ppObj
+#     def Clone(self):
+#         '-no docstring-'
+#         #return ppEnum
 #
 
 
-class IRenderEngine(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IUnknown):
-    """IRenderEngine Interface"""
+class IAMTimelineGroup(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IUnknown):
+    """IAMTimelineGroup Interface"""
     _case_insensitive_ = True
-    _iid_ = GUID('{6BEE3A81-66C9-11D2-918F-00C0DF10D434}')
+    _iid_ = GUID('{9EED4F00-B8A6-11D2-8023-00C0DF10D434}')
     _idlflags_ = []
 
     if TYPE_CHECKING:  # commembers
-        def SetTimelineObject(self, pTimeline: hints.Incomplete) -> hints.Hresult: ...
-        def GetTimelineObject(self) -> 'IAMTimeline': ...
-        def GetFilterGraph(self) -> 'IGraphBuilder': ...
-        def SetFilterGraph(self, pFG: hints.Incomplete) -> hints.Hresult: ...
-        def SetInterestRange(self, Start: hints.Incomplete, Stop: hints.Incomplete) -> hints.Hresult: ...
-        def SetInterestRange2(self, Start: hints.Incomplete, Stop: hints.Incomplete) -> hints.Hresult: ...
-        def SetRenderRange(self, Start: hints.Incomplete, Stop: hints.Incomplete) -> hints.Hresult: ...
-        def SetRenderRange2(self, Start: hints.Incomplete, Stop: hints.Incomplete) -> hints.Hresult: ...
-        def GetGroupOutputPin(self, Group: hints.Incomplete) -> 'IPin': ...
-        def ScrapIt(self) -> hints.Hresult: ...
-        def RenderOutputPins(self) -> hints.Hresult: ...
-        def GetVendorString(self) -> hints.Incomplete: ...
-        def ConnectFrontEnd(self) -> hints.Hresult: ...
-        def SetSourceConnectCallback(self, pCallback: hints.Incomplete) -> hints.Hresult: ...
-        def SetDynamicReconnectLevel(self, Level: hints.Incomplete) -> hints.Hresult: ...
-        def DoSmartRecompression(self) -> hints.Hresult: ...
-        def UseInSmartRecompressionGraph(self) -> hints.Hresult: ...
-        def SetSourceNameValidation(self, FilterString: hints.Incomplete, pOverride: hints.Incomplete, Flags: hints.Incomplete) -> hints.Hresult: ...
-        def Commit(self) -> hints.Hresult: ...
-        def Decommit(self) -> hints.Hresult: ...
-        def GetCaps(self, Index: hints.Incomplete, pReturn: hints.Incomplete) -> hints.Hresult: ...
+        def SetTimeline(self, pTimeline: hints.Incomplete) -> hints.Hresult: ...
+        def GetTimeline(self) -> 'IAMTimeline': ...
+        def GetPriority(self, pPriority: hints.Incomplete) -> hints.Hresult: ...
+        def GetMediaType(self) -> hints.Incomplete: ...
+        def SetMediaType(self, __MIDL__IAMTimelineGroup0001: hints.Incomplete) -> hints.Hresult: ...
+        def SetOutputFPS(self, FPS: hints.Incomplete) -> hints.Hresult: ...
+        def GetOutputFPS(self, pFPS: hints.Incomplete) -> hints.Hresult: ...
+        def SetGroupName(self, pGroupName: hints.Incomplete) -> hints.Hresult: ...
+        def GetGroupName(self) -> hints.Incomplete: ...
+        def SetPreviewMode(self, fPreview: hints.Incomplete) -> hints.Hresult: ...
+        def GetPreviewMode(self, pfPreview: hints.Incomplete) -> hints.Hresult: ...
+        def SetMediaTypeForVB(self, Val: hints.Incomplete) -> hints.Hresult: ...
+        def GetOutputBuffering(self) -> hints.Incomplete: ...
+        def SetOutputBuffering(self, nBuffer: hints.Incomplete) -> hints.Hresult: ...
+        def SetSmartRecompressFormat(self, pFormat: hints.Incomplete) -> hints.Hresult: ...
+        def GetSmartRecompressFormat(self, ppFormat: hints.Incomplete) -> hints.Hresult: ...
+        def IsSmartRecompressFormatSet(self, pVal: hints.Incomplete) -> hints.Hresult: ...
+        def IsRecompressFormatDirty(self, pVal: hints.Incomplete) -> hints.Hresult: ...
+        def ClearRecompressFormatDirty(self) -> hints.Hresult: ...
+        def SetRecompFormatFromSource(self, pSource: hints.Incomplete) -> hints.Hresult: ...
 
 
 class IAMTimeline(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IUnknown):
@@ -294,976 +254,8 @@ class IAMTimeline(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IUnkn
         def GetDefaultEffectB(self) -> hints.Incomplete: ...
 
 
-class IFilterGraph(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IUnknown):
-    _case_insensitive_ = True
-    _iid_ = GUID('{56A8689F-0AD4-11CE-B03A-0020AF0BA770}')
-    _idlflags_ = []
-
-    if TYPE_CHECKING:  # commembers
-        def AddFilter(self, pFilter: hints.Incomplete, pName: hints.Incomplete) -> hints.Hresult: ...
-        def RemoveFilter(self, pFilter: hints.Incomplete) -> hints.Hresult: ...
-        def EnumFilters(self) -> 'IEnumFilters': ...
-        def FindFilterByName(self, pName: hints.Incomplete) -> 'IBaseFilter': ...
-        def ConnectDirect(self, ppinOut: hints.Incomplete, ppinIn: hints.Incomplete, pmt: hints.Incomplete) -> hints.Hresult: ...
-        def Reconnect(self, pPin: hints.Incomplete) -> hints.Hresult: ...
-        def Disconnect(self, pPin: hints.Incomplete) -> hints.Hresult: ...
-        def SetDefaultSyncSource(self) -> hints.Hresult: ...
-
-
-class IGraphBuilder(IFilterGraph):
-    _case_insensitive_ = True
-    _iid_ = GUID('{56A868A9-0AD4-11CE-B03A-0020AF0BA770}')
-    _idlflags_ = []
-
-    if TYPE_CHECKING:  # commembers
-        def Connect(self, ppinOut: hints.Incomplete, ppinIn: hints.Incomplete) -> hints.Hresult: ...
-        def Render(self, ppinOut: hints.Incomplete) -> hints.Hresult: ...
-        def RenderFile(self, lpcwstrFile: hints.Incomplete, lpcwstrPlayList: hints.Incomplete) -> hints.Hresult: ...
-        def AddSourceFilter(self, lpcwstrFileName: hints.Incomplete, lpcwstrFilterName: hints.Incomplete) -> 'IBaseFilter': ...
-        def SetLogFile(self, hFile: hints.Incomplete) -> hints.Hresult: ...
-        def Abort(self) -> hints.Hresult: ...
-        def ShouldOperationContinue(self) -> hints.Hresult: ...
-
-
-class IPin(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IUnknown):
-    _case_insensitive_ = True
-    _iid_ = GUID('{56A86891-0AD4-11CE-B03A-0020AF0BA770}')
-    _idlflags_ = []
-
-    if TYPE_CHECKING:  # commembers
-        def Connect(self, pReceivePin: hints.Incomplete, pmt: hints.Incomplete) -> hints.Hresult: ...
-        def ReceiveConnection(self, pConnector: hints.Incomplete, pmt: hints.Incomplete) -> hints.Hresult: ...
-        def Disconnect(self) -> hints.Hresult: ...
-        def ConnectedTo(self) -> 'IPin': ...
-        def ConnectionMediaType(self) -> hints.Incomplete: ...
-        def QueryPinInfo(self) -> hints.Incomplete: ...
-        def QueryDirection(self) -> hints.Incomplete: ...
-        def QueryId(self) -> hints.Incomplete: ...
-        def QueryAccept(self, pmt: hints.Incomplete) -> hints.Hresult: ...
-        def EnumMediaTypes(self) -> 'IEnumMediaTypes': ...
-        def QueryInternalConnections(self, nPin: hints.Incomplete) -> hints.Tuple['IPin', hints.Incomplete]: ...
-        def EndOfStream(self) -> hints.Hresult: ...
-        def BeginFlush(self) -> hints.Hresult: ...
-        def EndFlush(self) -> hints.Hresult: ...
-        def NewSegment(self, tStart: hints.Incomplete, tStop: hints.Incomplete, dRate: hints.Incomplete) -> hints.Hresult: ...
-
-
-class IGrfCache(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IDispatch):
-    """IGrfCache Interface"""
-    _case_insensitive_ = True
-    _iid_ = GUID('{AE9472BE-B0C3-11D2-8D24-00A0C9441E20}')
-    _idlflags_ = []
-
-    if TYPE_CHECKING:  # commembers
-        def AddFilter(self, ChainedCache: hints.Incomplete, Id: hints.Incomplete, pFilter: hints.Incomplete, pName: hints.Incomplete) -> hints.Hresult: ...
-        def ConnectPins(self, ChainedCache: hints.Incomplete, PinID1: hints.Incomplete, pPin1: hints.Incomplete, PinID2: hints.Incomplete, pPin2: hints.Incomplete) -> hints.Hresult: ...
-        def SetGraph(self, pGraph: hints.Incomplete) -> hints.Hresult: ...
-        def DoConnectionsNow(self) -> hints.Hresult: ...
-
-
-IRenderEngine._methods_ = [
-    COMMETHOD(
-        [],
-        HRESULT,
-        'SetTimelineObject',
-        ([], POINTER(IAMTimeline), 'pTimeline')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'GetTimelineObject',
-        (['out'], POINTER(POINTER(IAMTimeline)), 'ppTimeline')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'GetFilterGraph',
-        (['out'], POINTER(POINTER(IGraphBuilder)), 'ppFG')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'SetFilterGraph',
-        ([], POINTER(IGraphBuilder), 'pFG')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'SetInterestRange',
-        ([], c_longlong, 'Start'),
-        ([], c_longlong, 'Stop')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'SetInterestRange2',
-        ([], c_double, 'Start'),
-        ([], c_double, 'Stop')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'SetRenderRange',
-        ([], c_longlong, 'Start'),
-        ([], c_longlong, 'Stop')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'SetRenderRange2',
-        ([], c_double, 'Start'),
-        ([], c_double, 'Stop')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'GetGroupOutputPin',
-        ([], c_int, 'Group'),
-        (['out'], POINTER(POINTER(IPin)), 'ppRenderPin')
-    ),
-    COMMETHOD([], HRESULT, 'ScrapIt'),
-    COMMETHOD([], HRESULT, 'RenderOutputPins'),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'GetVendorString',
-        (['out', 'retval'], POINTER(BSTR), 'pVendorID')
-    ),
-    COMMETHOD([], HRESULT, 'ConnectFrontEnd'),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'SetSourceConnectCallback',
-        ([], POINTER(IGrfCache), 'pCallback')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'SetDynamicReconnectLevel',
-        ([], c_int, 'Level')
-    ),
-    COMMETHOD([], HRESULT, 'DoSmartRecompression'),
-    COMMETHOD([], HRESULT, 'UseInSmartRecompressionGraph'),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'SetSourceNameValidation',
-        ([], BSTR, 'FilterString'),
-        ([], POINTER(IMediaLocator), 'pOverride'),
-        ([], c_int, 'Flags')
-    ),
-    COMMETHOD([], HRESULT, 'Commit'),
-    COMMETHOD([], HRESULT, 'Decommit'),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'GetCaps',
-        ([], c_int, 'Index'),
-        ([], POINTER(c_int), 'pReturn')
-    ),
-]
-
-################################################################
-# code template for IRenderEngine implementation
-# class IRenderEngine_Impl(object):
-#     def SetTimelineObject(self, pTimeline):
-#         '-no docstring-'
-#         #return 
-#
-#     def GetTimelineObject(self):
-#         '-no docstring-'
-#         #return ppTimeline
-#
-#     def GetFilterGraph(self):
-#         '-no docstring-'
-#         #return ppFG
-#
-#     def SetFilterGraph(self, pFG):
-#         '-no docstring-'
-#         #return 
-#
-#     def SetInterestRange(self, Start, Stop):
-#         '-no docstring-'
-#         #return 
-#
-#     def SetInterestRange2(self, Start, Stop):
-#         '-no docstring-'
-#         #return 
-#
-#     def SetRenderRange(self, Start, Stop):
-#         '-no docstring-'
-#         #return 
-#
-#     def SetRenderRange2(self, Start, Stop):
-#         '-no docstring-'
-#         #return 
-#
-#     def GetGroupOutputPin(self, Group):
-#         '-no docstring-'
-#         #return ppRenderPin
-#
-#     def ScrapIt(self):
-#         '-no docstring-'
-#         #return 
-#
-#     def RenderOutputPins(self):
-#         '-no docstring-'
-#         #return 
-#
-#     def GetVendorString(self):
-#         '-no docstring-'
-#         #return pVendorID
-#
-#     def ConnectFrontEnd(self):
-#         '-no docstring-'
-#         #return 
-#
-#     def SetSourceConnectCallback(self, pCallback):
-#         '-no docstring-'
-#         #return 
-#
-#     def SetDynamicReconnectLevel(self, Level):
-#         '-no docstring-'
-#         #return 
-#
-#     def DoSmartRecompression(self):
-#         '-no docstring-'
-#         #return 
-#
-#     def UseInSmartRecompressionGraph(self):
-#         '-no docstring-'
-#         #return 
-#
-#     def SetSourceNameValidation(self, FilterString, pOverride, Flags):
-#         '-no docstring-'
-#         #return 
-#
-#     def Commit(self):
-#         '-no docstring-'
-#         #return 
-#
-#     def Decommit(self):
-#         '-no docstring-'
-#         #return 
-#
-#     def GetCaps(self, Index, pReturn):
-#         '-no docstring-'
-#         #return 
-#
-
-
-class IDXEffect(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IDispatch):
-    """IDXEffect Interface"""
-    _case_insensitive_ = True
-    _iid_ = GUID('{E31FB81B-1335-11D1-8189-0000F87557DB}')
-    _idlflags_ = ['dual', 'oleautomation']
-
-    if TYPE_CHECKING:  # commembers
-        def _get_Capabilities(self) -> hints.Incomplete: ...
-        Capabilities = hints.normal_property(_get_Capabilities)
-        def _get_Progress(self) -> hints.Incomplete: ...
-        def _set_Progress(self, pVal: hints.Incomplete) -> hints.Hresult: ...
-        Progress = hints.normal_property(_get_Progress, _set_Progress)
-        def _get_StepResolution(self) -> hints.Incomplete: ...
-        StepResolution = hints.normal_property(_get_StepResolution)
-        def _get_Duration(self) -> hints.Incomplete: ...
-        def _set_Duration(self, pVal: hints.Incomplete) -> hints.Hresult: ...
-        Duration = hints.normal_property(_get_Duration, _set_Duration)
-
-
-class IDxtAlphaSetter(IDXEffect):
-    """IDxtAlphaSetter Interface"""
-    _case_insensitive_ = True
-    _iid_ = GUID('{4EE9EAD9-DA4D-43D0-9383-06B90C08B12B}')
-    _idlflags_ = ['dual', 'oleautomation']
-
-    if TYPE_CHECKING:  # commembers
-        def _get_Alpha(self) -> hints.Incomplete: ...
-        def _set_Alpha(self, pVal: hints.Incomplete) -> hints.Hresult: ...
-        Alpha = hints.normal_property(_get_Alpha, _set_Alpha)
-        def _get_AlphaRamp(self) -> hints.Incomplete: ...
-        def _set_AlphaRamp(self, pVal: hints.Incomplete) -> hints.Hresult: ...
-        AlphaRamp = hints.normal_property(_get_AlphaRamp, _set_AlphaRamp)
-
-
-IDXEffect._methods_ = [
-    COMMETHOD(
-        [dispid(10000), 'propget'],
-        HRESULT,
-        'Capabilities',
-        (['out', 'retval'], POINTER(c_int), 'pVal')
-    ),
-    COMMETHOD(
-        [dispid(10001), 'propget'],
-        HRESULT,
-        'Progress',
-        (['out', 'retval'], POINTER(c_float), 'pVal')
-    ),
-    COMMETHOD(
-        [dispid(10001), 'propput'],
-        HRESULT,
-        'Progress',
-        (['in'], c_float, 'pVal')
-    ),
-    COMMETHOD(
-        [dispid(10002), 'propget'],
-        HRESULT,
-        'StepResolution',
-        (['out', 'retval'], POINTER(c_float), 'pVal')
-    ),
-    COMMETHOD(
-        [dispid(10003), 'propget'],
-        HRESULT,
-        'Duration',
-        (['out', 'retval'], POINTER(c_float), 'pVal')
-    ),
-    COMMETHOD(
-        [dispid(10003), 'propput'],
-        HRESULT,
-        'Duration',
-        (['in'], c_float, 'pVal')
-    ),
-]
-
-################################################################
-# code template for IDXEffect implementation
-# class IDXEffect_Impl(object):
-#     @property
-#     def Capabilities(self):
-#         '-no docstring-'
-#         #return pVal
-#
-#     def _get(self):
-#         '-no docstring-'
-#         #return pVal
-#     def _set(self, pVal):
-#         '-no docstring-'
-#     Progress = property(_get, _set, doc = _set.__doc__)
-#
-#     @property
-#     def StepResolution(self):
-#         '-no docstring-'
-#         #return pVal
-#
-#     def _get(self):
-#         '-no docstring-'
-#         #return pVal
-#     def _set(self, pVal):
-#         '-no docstring-'
-#     Duration = property(_get, _set, doc = _set.__doc__)
-#
-
-IDxtAlphaSetter._methods_ = [
-    COMMETHOD(
-        [dispid(1), helpstring('property Alpha'), 'propget'],
-        HRESULT,
-        'Alpha',
-        (['out', 'retval'], POINTER(c_int), 'pVal')
-    ),
-    COMMETHOD(
-        [dispid(1), helpstring('property Alpha'), 'propput'],
-        HRESULT,
-        'Alpha',
-        (['in'], c_int, 'pVal')
-    ),
-    COMMETHOD(
-        [dispid(2), helpstring('property AlphaRamp'), 'propget'],
-        HRESULT,
-        'AlphaRamp',
-        (['out', 'retval'], POINTER(c_double), 'pVal')
-    ),
-    COMMETHOD(
-        [dispid(2), helpstring('property AlphaRamp'), 'propput'],
-        HRESULT,
-        'AlphaRamp',
-        (['in'], c_double, 'pVal')
-    ),
-]
-
-################################################################
-# code template for IDxtAlphaSetter implementation
-# class IDxtAlphaSetter_Impl(object):
-#     def _get(self):
-#         'property Alpha'
-#         #return pVal
-#     def _set(self, pVal):
-#         'property Alpha'
-#     Alpha = property(_get, _set, doc = _set.__doc__)
-#
-#     def _get(self):
-#         'property AlphaRamp'
-#         #return pVal
-#     def _set(self, pVal):
-#         'property AlphaRamp'
-#     AlphaRamp = property(_get, _set, doc = _set.__doc__)
-#
-
-
-class IMediaFilter(IPersist):
-    _case_insensitive_ = True
-    _iid_ = GUID('{56A86899-0AD4-11CE-B03A-0020AF0BA770}')
-    _idlflags_ = []
-
-    if TYPE_CHECKING:  # commembers
-        def Stop(self) -> hints.Hresult: ...
-        def Pause(self) -> hints.Hresult: ...
-        def Run(self, tStart: hints.Incomplete) -> hints.Hresult: ...
-        def GetState(self, dwMilliSecsTimeout: hints.Incomplete) -> hints.Incomplete: ...
-        def SetSyncSource(self, pClock: hints.Incomplete) -> hints.Hresult: ...
-        def GetSyncSource(self) -> 'IReferenceClock': ...
-
-
-class IBaseFilter(IMediaFilter):
-    _case_insensitive_ = True
-    _iid_ = GUID('{56A86895-0AD4-11CE-B03A-0020AF0BA770}')
-    _idlflags_ = []
-
-    if TYPE_CHECKING:  # commembers
-        def EnumPins(self) -> 'IEnumPins': ...
-        def FindPin(self, Id: hints.Incomplete) -> 'IPin': ...
-        def QueryFilterInfo(self) -> hints.Incomplete: ...
-        def JoinFilterGraph(self, pGraph: hints.Incomplete, pName: hints.Incomplete) -> hints.Hresult: ...
-        def QueryVendorInfo(self) -> hints.Incomplete: ...
-
-
-class IEnumFilters(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IUnknown):
-    _case_insensitive_ = True
-    _iid_ = GUID('{56A86893-0AD4-11CE-B03A-0020AF0BA770}')
-    _idlflags_ = []
-
-    def __iter__(self):
-        return self
-
-    def __next__(self):
-        item, fetched = self.Next(1)
-        if fetched:
-            return item
-        raise StopIteration
-
-    def __getitem__(self, index):
-        self.Reset()
-        self.Skip(index)
-        item, fetched = self.Next(1)
-        if fetched:
-            return item
-        raise IndexError(index)
-
-    if TYPE_CHECKING:  # commembers
-        def Next(self, cFilters: hints.Incomplete) -> hints.Tuple['IBaseFilter', hints.Incomplete]: ...
-        def Skip(self, cFilters: hints.Incomplete) -> hints.Hresult: ...
-        def Reset(self) -> hints.Hresult: ...
-        def Clone(self) -> 'IEnumFilters': ...
-
-
 class _AMMediaType(Structure):
     pass
-
-
-IFilterGraph._methods_ = [
-    COMMETHOD(
-        [],
-        HRESULT,
-        'AddFilter',
-        (['in'], POINTER(IBaseFilter), 'pFilter'),
-        (['in'], WSTRING, 'pName')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'RemoveFilter',
-        (['in'], POINTER(IBaseFilter), 'pFilter')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'EnumFilters',
-        (['out'], POINTER(POINTER(IEnumFilters)), 'ppEnum')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'FindFilterByName',
-        (['in'], WSTRING, 'pName'),
-        (['out'], POINTER(POINTER(IBaseFilter)), 'ppFilter')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'ConnectDirect',
-        (['in'], POINTER(IPin), 'ppinOut'),
-        (['in'], POINTER(IPin), 'ppinIn'),
-        (['in'], POINTER(_AMMediaType), 'pmt')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'Reconnect',
-        (['in'], POINTER(IPin), 'pPin')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'Disconnect',
-        (['in'], POINTER(IPin), 'pPin')
-    ),
-    COMMETHOD([], HRESULT, 'SetDefaultSyncSource'),
-]
-
-################################################################
-# code template for IFilterGraph implementation
-# class IFilterGraph_Impl(object):
-#     def AddFilter(self, pFilter, pName):
-#         '-no docstring-'
-#         #return 
-#
-#     def RemoveFilter(self, pFilter):
-#         '-no docstring-'
-#         #return 
-#
-#     def EnumFilters(self):
-#         '-no docstring-'
-#         #return ppEnum
-#
-#     def FindFilterByName(self, pName):
-#         '-no docstring-'
-#         #return ppFilter
-#
-#     def ConnectDirect(self, ppinOut, ppinIn, pmt):
-#         '-no docstring-'
-#         #return 
-#
-#     def Reconnect(self, pPin):
-#         '-no docstring-'
-#         #return 
-#
-#     def Disconnect(self, pPin):
-#         '-no docstring-'
-#         #return 
-#
-#     def SetDefaultSyncSource(self):
-#         '-no docstring-'
-#         #return 
-#
-
-IGraphBuilder._methods_ = [
-    COMMETHOD(
-        [],
-        HRESULT,
-        'Connect',
-        (['in'], POINTER(IPin), 'ppinOut'),
-        (['in'], POINTER(IPin), 'ppinIn')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'Render',
-        (['in'], POINTER(IPin), 'ppinOut')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'RenderFile',
-        (['in'], WSTRING, 'lpcwstrFile'),
-        (['in'], WSTRING, 'lpcwstrPlayList')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'AddSourceFilter',
-        (['in'], WSTRING, 'lpcwstrFileName'),
-        (['in'], WSTRING, 'lpcwstrFilterName'),
-        (['out'], POINTER(POINTER(IBaseFilter)), 'ppFilter')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'SetLogFile',
-        (['in'], ULONG_PTR, 'hFile')
-    ),
-    COMMETHOD([], HRESULT, 'Abort'),
-    COMMETHOD([], HRESULT, 'ShouldOperationContinue'),
-]
-
-################################################################
-# code template for IGraphBuilder implementation
-# class IGraphBuilder_Impl(object):
-#     def Connect(self, ppinOut, ppinIn):
-#         '-no docstring-'
-#         #return 
-#
-#     def Render(self, ppinOut):
-#         '-no docstring-'
-#         #return 
-#
-#     def RenderFile(self, lpcwstrFile, lpcwstrPlayList):
-#         '-no docstring-'
-#         #return 
-#
-#     def AddSourceFilter(self, lpcwstrFileName, lpcwstrFilterName):
-#         '-no docstring-'
-#         #return ppFilter
-#
-#     def SetLogFile(self, hFile):
-#         '-no docstring-'
-#         #return 
-#
-#     def Abort(self):
-#         '-no docstring-'
-#         #return 
-#
-#     def ShouldOperationContinue(self):
-#         '-no docstring-'
-#         #return 
-#
-
-
-class IAMSetErrorLog(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IUnknown):
-    """IAMSetErrorLog Interface"""
-    _case_insensitive_ = True
-    _iid_ = GUID('{963566DA-BE21-4EAF-88E9-35704F8F52A1}')
-    _idlflags_ = []
-
-    if TYPE_CHECKING:  # commembers
-        def _get_ErrorLog(self) -> 'IAMErrorLog': ...
-        def _set_ErrorLog(self, pVal: hints.Incomplete) -> hints.Hresult: ...
-        ErrorLog = hints.normal_property(_get_ErrorLog, _set_ErrorLog)
-
-
-class IAMErrorLog(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IUnknown):
-    """IAMErrorLog Interface"""
-    _case_insensitive_ = True
-    _iid_ = GUID('{E43E73A2-0EFA-11D3-9601-00A0C9441E20}')
-    _idlflags_ = []
-
-    if TYPE_CHECKING:  # commembers
-        def LogError(self, Severity: hints.Incomplete, pErrorString: hints.Incomplete, ErrorCode: hints.Incomplete, hresult: hints.Incomplete, pExtraInfo: hints.Incomplete) -> hints.Hresult: ...
-
-
-IAMSetErrorLog._methods_ = [
-    COMMETHOD(
-        ['propget', helpstring('property ErrorLog')],
-        HRESULT,
-        'ErrorLog',
-        (['out', 'retval'], POINTER(POINTER(IAMErrorLog)), 'pVal')
-    ),
-    COMMETHOD(
-        ['propput', helpstring('property ErrorLog')],
-        HRESULT,
-        'ErrorLog',
-        (['in'], POINTER(IAMErrorLog), 'pVal')
-    ),
-]
-
-################################################################
-# code template for IAMSetErrorLog implementation
-# class IAMSetErrorLog_Impl(object):
-#     def _get(self):
-#         'property ErrorLog'
-#         #return pVal
-#     def _set(self, pVal):
-#         'property ErrorLog'
-#     ErrorLog = property(_get, _set, doc = _set.__doc__)
-#
-
-
-class IDxtJpeg(IDXEffect):
-    """IDxtJpeg Interface"""
-    _case_insensitive_ = True
-    _iid_ = GUID('{DE75D011-7A65-11D2-8CEA-00A0C9441E20}')
-    _idlflags_ = ['dual', 'oleautomation']
-
-    if TYPE_CHECKING:  # commembers
-        def _get_MaskNum(self) -> hints.Incomplete: ...
-        def _set_MaskNum(self, __MIDL__IDxtJpeg0000: hints.Incomplete) -> hints.Hresult: ...
-        MaskNum = hints.normal_property(_get_MaskNum, _set_MaskNum)
-        def _get_MaskName(self) -> hints.Incomplete: ...
-        def _set_MaskName(self, pVal: hints.Incomplete) -> hints.Hresult: ...
-        MaskName = hints.normal_property(_get_MaskName, _set_MaskName)
-        def _get_ScaleX(self) -> hints.Incomplete: ...
-        def _set_ScaleX(self, __MIDL__IDxtJpeg0002: hints.Incomplete) -> hints.Hresult: ...
-        ScaleX = hints.normal_property(_get_ScaleX, _set_ScaleX)
-        def _get_ScaleY(self) -> hints.Incomplete: ...
-        def _set_ScaleY(self, __MIDL__IDxtJpeg0004: hints.Incomplete) -> hints.Hresult: ...
-        ScaleY = hints.normal_property(_get_ScaleY, _set_ScaleY)
-        def _get_OffsetX(self) -> hints.Incomplete: ...
-        def _set_OffsetX(self, __MIDL__IDxtJpeg0006: hints.Incomplete) -> hints.Hresult: ...
-        OffsetX = hints.normal_property(_get_OffsetX, _set_OffsetX)
-        def _get_OffsetY(self) -> hints.Incomplete: ...
-        def _set_OffsetY(self, __MIDL__IDxtJpeg0008: hints.Incomplete) -> hints.Hresult: ...
-        OffsetY = hints.normal_property(_get_OffsetY, _set_OffsetY)
-        def _get_ReplicateX(self) -> hints.Incomplete: ...
-        def _set_ReplicateX(self, pVal: hints.Incomplete) -> hints.Hresult: ...
-        ReplicateX = hints.normal_property(_get_ReplicateX, _set_ReplicateX)
-        def _get_ReplicateY(self) -> hints.Incomplete: ...
-        def _set_ReplicateY(self, pVal: hints.Incomplete) -> hints.Hresult: ...
-        ReplicateY = hints.normal_property(_get_ReplicateY, _set_ReplicateY)
-        def _get_BorderColor(self) -> hints.Incomplete: ...
-        def _set_BorderColor(self, pVal: hints.Incomplete) -> hints.Hresult: ...
-        BorderColor = hints.normal_property(_get_BorderColor, _set_BorderColor)
-        def _get_BorderWidth(self) -> hints.Incomplete: ...
-        def _set_BorderWidth(self, pVal: hints.Incomplete) -> hints.Hresult: ...
-        BorderWidth = hints.normal_property(_get_BorderWidth, _set_BorderWidth)
-        def _get_BorderSoftness(self) -> hints.Incomplete: ...
-        def _set_BorderSoftness(self, pVal: hints.Incomplete) -> hints.Hresult: ...
-        BorderSoftness = hints.normal_property(_get_BorderSoftness, _set_BorderSoftness)
-        def ApplyChanges(self) -> hints.Hresult: ...
-        def LoadDefSettings(self) -> hints.Hresult: ...
-
-
-IDxtJpeg._methods_ = [
-    COMMETHOD(
-        [dispid(1), helpstring('property MaskNum'), 'propget'],
-        HRESULT,
-        'MaskNum',
-        (['out', 'retval'], POINTER(c_int), '__MIDL__IDxtJpeg0000')
-    ),
-    COMMETHOD(
-        [dispid(1), helpstring('property MaskNum'), 'propput'],
-        HRESULT,
-        'MaskNum',
-        (['in'], c_int, '__MIDL__IDxtJpeg0000')
-    ),
-    COMMETHOD(
-        [dispid(2), helpstring('property MaskName'), 'propget'],
-        HRESULT,
-        'MaskName',
-        (['out', 'retval'], POINTER(BSTR), 'pVal')
-    ),
-    COMMETHOD(
-        [dispid(2), helpstring('property MaskName'), 'propput'],
-        HRESULT,
-        'MaskName',
-        (['in'], BSTR, 'pVal')
-    ),
-    COMMETHOD(
-        [dispid(3), helpstring('property ScaleX'), 'propget'],
-        HRESULT,
-        'ScaleX',
-        (['out', 'retval'], POINTER(c_double), '__MIDL__IDxtJpeg0002')
-    ),
-    COMMETHOD(
-        [dispid(3), helpstring('property ScaleX'), 'propput'],
-        HRESULT,
-        'ScaleX',
-        (['in'], c_double, '__MIDL__IDxtJpeg0002')
-    ),
-    COMMETHOD(
-        [dispid(4), helpstring('property ScaleY'), 'propget'],
-        HRESULT,
-        'ScaleY',
-        (['out', 'retval'], POINTER(c_double), '__MIDL__IDxtJpeg0004')
-    ),
-    COMMETHOD(
-        [dispid(4), helpstring('property ScaleY'), 'propput'],
-        HRESULT,
-        'ScaleY',
-        (['in'], c_double, '__MIDL__IDxtJpeg0004')
-    ),
-    COMMETHOD(
-        [dispid(5), helpstring('property OffsetX'), 'propget'],
-        HRESULT,
-        'OffsetX',
-        (['out', 'retval'], POINTER(c_int), '__MIDL__IDxtJpeg0006')
-    ),
-    COMMETHOD(
-        [dispid(5), helpstring('property OffsetX'), 'propput'],
-        HRESULT,
-        'OffsetX',
-        (['in'], c_int, '__MIDL__IDxtJpeg0006')
-    ),
-    COMMETHOD(
-        [dispid(6), helpstring('property OffsetY'), 'propget'],
-        HRESULT,
-        'OffsetY',
-        (['out', 'retval'], POINTER(c_int), '__MIDL__IDxtJpeg0008')
-    ),
-    COMMETHOD(
-        [dispid(6), helpstring('property OffsetY'), 'propput'],
-        HRESULT,
-        'OffsetY',
-        (['in'], c_int, '__MIDL__IDxtJpeg0008')
-    ),
-    COMMETHOD(
-        [dispid(7), helpstring('property ReplicateX'), 'propget'],
-        HRESULT,
-        'ReplicateX',
-        (['out', 'retval'], POINTER(c_int), 'pVal')
-    ),
-    COMMETHOD(
-        [dispid(7), helpstring('property ReplicateX'), 'propput'],
-        HRESULT,
-        'ReplicateX',
-        (['in'], c_int, 'pVal')
-    ),
-    COMMETHOD(
-        [dispid(8), helpstring('property ReplicateY'), 'propget'],
-        HRESULT,
-        'ReplicateY',
-        (['out', 'retval'], POINTER(c_int), 'pVal')
-    ),
-    COMMETHOD(
-        [dispid(8), helpstring('property ReplicateY'), 'propput'],
-        HRESULT,
-        'ReplicateY',
-        (['in'], c_int, 'pVal')
-    ),
-    COMMETHOD(
-        [dispid(9), helpstring('property BorderColor'), 'propget'],
-        HRESULT,
-        'BorderColor',
-        (['out', 'retval'], POINTER(c_int), 'pVal')
-    ),
-    COMMETHOD(
-        [dispid(9), helpstring('property BorderColor'), 'propput'],
-        HRESULT,
-        'BorderColor',
-        (['in'], c_int, 'pVal')
-    ),
-    COMMETHOD(
-        [dispid(10), helpstring('property BorderWidth'), 'propget'],
-        HRESULT,
-        'BorderWidth',
-        (['out', 'retval'], POINTER(c_int), 'pVal')
-    ),
-    COMMETHOD(
-        [dispid(10), helpstring('property BorderWidth'), 'propput'],
-        HRESULT,
-        'BorderWidth',
-        (['in'], c_int, 'pVal')
-    ),
-    COMMETHOD(
-        [dispid(11), helpstring('property BorderSoftness'), 'propget'],
-        HRESULT,
-        'BorderSoftness',
-        (['out', 'retval'], POINTER(c_int), 'pVal')
-    ),
-    COMMETHOD(
-        [dispid(11), helpstring('property BorderSoftness'), 'propput'],
-        HRESULT,
-        'BorderSoftness',
-        (['in'], c_int, 'pVal')
-    ),
-    COMMETHOD([dispid(1610809366)], HRESULT, 'ApplyChanges'),
-    COMMETHOD([dispid(1610809367)], HRESULT, 'LoadDefSettings'),
-]
-
-################################################################
-# code template for IDxtJpeg implementation
-# class IDxtJpeg_Impl(object):
-#     def _get(self):
-#         'property MaskNum'
-#         #return __MIDL__IDxtJpeg0000
-#     def _set(self, __MIDL__IDxtJpeg0000):
-#         'property MaskNum'
-#     MaskNum = property(_get, _set, doc = _set.__doc__)
-#
-#     def _get(self):
-#         'property MaskName'
-#         #return pVal
-#     def _set(self, pVal):
-#         'property MaskName'
-#     MaskName = property(_get, _set, doc = _set.__doc__)
-#
-#     def _get(self):
-#         'property ScaleX'
-#         #return __MIDL__IDxtJpeg0002
-#     def _set(self, __MIDL__IDxtJpeg0002):
-#         'property ScaleX'
-#     ScaleX = property(_get, _set, doc = _set.__doc__)
-#
-#     def _get(self):
-#         'property ScaleY'
-#         #return __MIDL__IDxtJpeg0004
-#     def _set(self, __MIDL__IDxtJpeg0004):
-#         'property ScaleY'
-#     ScaleY = property(_get, _set, doc = _set.__doc__)
-#
-#     def _get(self):
-#         'property OffsetX'
-#         #return __MIDL__IDxtJpeg0006
-#     def _set(self, __MIDL__IDxtJpeg0006):
-#         'property OffsetX'
-#     OffsetX = property(_get, _set, doc = _set.__doc__)
-#
-#     def _get(self):
-#         'property OffsetY'
-#         #return __MIDL__IDxtJpeg0008
-#     def _set(self, __MIDL__IDxtJpeg0008):
-#         'property OffsetY'
-#     OffsetY = property(_get, _set, doc = _set.__doc__)
-#
-#     def _get(self):
-#         'property ReplicateX'
-#         #return pVal
-#     def _set(self, pVal):
-#         'property ReplicateX'
-#     ReplicateX = property(_get, _set, doc = _set.__doc__)
-#
-#     def _get(self):
-#         'property ReplicateY'
-#         #return pVal
-#     def _set(self, pVal):
-#         'property ReplicateY'
-#     ReplicateY = property(_get, _set, doc = _set.__doc__)
-#
-#     def _get(self):
-#         'property BorderColor'
-#         #return pVal
-#     def _set(self, pVal):
-#         'property BorderColor'
-#     BorderColor = property(_get, _set, doc = _set.__doc__)
-#
-#     def _get(self):
-#         'property BorderWidth'
-#         #return pVal
-#     def _set(self, pVal):
-#         'property BorderWidth'
-#     BorderWidth = property(_get, _set, doc = _set.__doc__)
-#
-#     def _get(self):
-#         'property BorderSoftness'
-#         #return pVal
-#     def _set(self, pVal):
-#         'property BorderSoftness'
-#     BorderSoftness = property(_get, _set, doc = _set.__doc__)
-#
-#     def ApplyChanges(self):
-#         '-no docstring-'
-#         #return 
-#
-#     def LoadDefSettings(self):
-#         '-no docstring-'
-#         #return 
-#
-
-
-class IAMTimelineGroup(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IUnknown):
-    """IAMTimelineGroup Interface"""
-    _case_insensitive_ = True
-    _iid_ = GUID('{9EED4F00-B8A6-11D2-8023-00C0DF10D434}')
-    _idlflags_ = []
-
-    if TYPE_CHECKING:  # commembers
-        def SetTimeline(self, pTimeline: hints.Incomplete) -> hints.Hresult: ...
-        def GetTimeline(self) -> 'IAMTimeline': ...
-        def GetPriority(self, pPriority: hints.Incomplete) -> hints.Hresult: ...
-        def GetMediaType(self) -> hints.Incomplete: ...
-        def SetMediaType(self, __MIDL__IAMTimelineGroup0001: hints.Incomplete) -> hints.Hresult: ...
-        def SetOutputFPS(self, FPS: hints.Incomplete) -> hints.Hresult: ...
-        def GetOutputFPS(self, pFPS: hints.Incomplete) -> hints.Hresult: ...
-        def SetGroupName(self, pGroupName: hints.Incomplete) -> hints.Hresult: ...
-        def GetGroupName(self) -> hints.Incomplete: ...
-        def SetPreviewMode(self, fPreview: hints.Incomplete) -> hints.Hresult: ...
-        def GetPreviewMode(self, pfPreview: hints.Incomplete) -> hints.Hresult: ...
-        def SetMediaTypeForVB(self, Val: hints.Incomplete) -> hints.Hresult: ...
-        def GetOutputBuffering(self) -> hints.Incomplete: ...
-        def SetOutputBuffering(self, nBuffer: hints.Incomplete) -> hints.Hresult: ...
-        def SetSmartRecompressFormat(self, pFormat: hints.Incomplete) -> hints.Hresult: ...
-        def GetSmartRecompressFormat(self, ppFormat: hints.Incomplete) -> hints.Hresult: ...
-        def IsSmartRecompressFormatSet(self, pVal: hints.Incomplete) -> hints.Hresult: ...
-        def IsRecompressFormatDirty(self, pVal: hints.Incomplete) -> hints.Hresult: ...
-        def ClearRecompressFormatDirty(self) -> hints.Hresult: ...
-        def SetRecompFormatFromSource(self, pSource: hints.Incomplete) -> hints.Hresult: ...
 
 
 class IAMTimelineSrc(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IUnknown):
@@ -1500,866 +492,6 @@ IAMTimelineGroup._methods_ = [
 #
 
 
-class SampleGrabber(CoClass):
-    """MsGrab Class"""
-    _reg_clsid_ = GUID('{C1F400A0-3F08-11D3-9F0B-006008039E37}')
-    _idlflags_ = []
-    _typelib_path_ = typelib_path
-    _reg_typelib_ = ('{78530B68-61F9-11D2-8CAD-00A024580902}', 1, 0)
-
-
-class ISampleGrabber(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IUnknown):
-    """ISampleGrabber Interface"""
-    _case_insensitive_ = True
-    _iid_ = GUID('{6B652FFF-11FE-4FCE-92AD-0266B5D7C78F}')
-    _idlflags_ = []
-
-    if TYPE_CHECKING:  # commembers
-        def SetOneShot(self, OneShot: hints.Incomplete) -> hints.Hresult: ...
-        def SetMediaType(self, pType: hints.Incomplete) -> hints.Hresult: ...
-        def GetConnectedMediaType(self, pType: hints.Incomplete) -> hints.Hresult: ...
-        def SetBufferSamples(self, BufferThem: hints.Incomplete) -> hints.Hresult: ...
-        def GetCurrentBuffer(self, pBufferSize: hints.Incomplete) -> hints.Tuple[hints.Incomplete, hints.Incomplete]: ...
-        def GetCurrentSample(self) -> 'IMediaSample': ...
-        def SetCallback(self, pCallback: hints.Incomplete, WhichMethodToCallback: hints.Incomplete) -> hints.Hresult: ...
-
-
-SampleGrabber._com_interfaces_ = [ISampleGrabber]
-
-
-class IPersistStream(IPersist):
-    _case_insensitive_ = True
-    _iid_ = GUID('{00000109-0000-0000-C000-000000000046}')
-    _idlflags_ = []
-
-    if TYPE_CHECKING:  # commembers
-        def IsDirty(self) -> hints.Hresult: ...
-        def Load(self, pstm: hints.Incomplete) -> hints.Hresult: ...
-        def Save(self, pstm: hints.Incomplete, fClearDirty: hints.Incomplete) -> hints.Hresult: ...
-        def GetSizeMax(self) -> hints.Incomplete: ...
-
-
-class IStream(ISequentialStream):
-    _case_insensitive_ = True
-    _iid_ = GUID('{0000000C-0000-0000-C000-000000000046}')
-    _idlflags_ = []
-
-    if TYPE_CHECKING:  # commembers
-        def RemoteSeek(self, dlibMove: hints.Incomplete, dwOrigin: hints.Incomplete) -> hints.Incomplete: ...
-        def SetSize(self, libNewSize: hints.Incomplete) -> hints.Hresult: ...
-        def RemoteCopyTo(self, pstm: hints.Incomplete, cb: hints.Incomplete) -> hints.Tuple[hints.Incomplete, hints.Incomplete]: ...
-        def Commit(self, grfCommitFlags: hints.Incomplete) -> hints.Hresult: ...
-        def Revert(self) -> hints.Hresult: ...
-        def LockRegion(self, libOffset: hints.Incomplete, cb: hints.Incomplete, dwLockType: hints.Incomplete) -> hints.Hresult: ...
-        def UnlockRegion(self, libOffset: hints.Incomplete, cb: hints.Incomplete, dwLockType: hints.Incomplete) -> hints.Hresult: ...
-        def Stat(self, grfStatFlag: hints.Incomplete) -> hints.Incomplete: ...
-        def Clone(self) -> 'IStream': ...
-
-
-IPersistStream._methods_ = [
-    COMMETHOD([], HRESULT, 'IsDirty'),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'Load',
-        (['in'], POINTER(IStream), 'pstm')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'Save',
-        (['in'], POINTER(IStream), 'pstm'),
-        (['in'], c_int, 'fClearDirty')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'GetSizeMax',
-        (['out'], POINTER(_ULARGE_INTEGER), 'pcbSize')
-    ),
-]
-
-################################################################
-# code template for IPersistStream implementation
-# class IPersistStream_Impl(object):
-#     def IsDirty(self):
-#         '-no docstring-'
-#         #return 
-#
-#     def Load(self, pstm):
-#         '-no docstring-'
-#         #return 
-#
-#     def Save(self, pstm, fClearDirty):
-#         '-no docstring-'
-#         #return 
-#
-#     def GetSizeMax(self):
-#         '-no docstring-'
-#         #return pcbSize
-#
-
-
-class MediaDet(CoClass):
-    """MediaDet Class"""
-    _reg_clsid_ = GUID('{65BD0711-24D2-4FF7-9324-ED2E5D3ABAFA}')
-    _idlflags_ = []
-    _typelib_path_ = typelib_path
-    _reg_typelib_ = ('{78530B68-61F9-11D2-8CAD-00A024580902}', 1, 0)
-
-
-class IMediaDet(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IUnknown):
-    """IMediaDet Interface"""
-    _case_insensitive_ = True
-    _iid_ = GUID('{65BD0710-24D2-4FF7-9324-ED2E5D3ABAFA}')
-    _idlflags_ = []
-
-    if TYPE_CHECKING:  # commembers
-        def _get_Filter(self) -> hints.Incomplete: ...
-        def _set_Filter(self, pVal: hints.Incomplete) -> hints.Hresult: ...
-        Filter = hints.normal_property(_get_Filter, _set_Filter)
-        def _get_OutputStreams(self) -> hints.Incomplete: ...
-        OutputStreams = hints.normal_property(_get_OutputStreams)
-        def _get_CurrentStream(self) -> hints.Incomplete: ...
-        def _set_CurrentStream(self, pVal: hints.Incomplete) -> hints.Hresult: ...
-        CurrentStream = hints.normal_property(_get_CurrentStream, _set_CurrentStream)
-        def _get_StreamType(self) -> hints.Incomplete: ...
-        StreamType = hints.normal_property(_get_StreamType)
-        def _get_StreamTypeB(self) -> hints.Incomplete: ...
-        StreamTypeB = hints.normal_property(_get_StreamTypeB)
-        def _get_StreamLength(self) -> hints.Incomplete: ...
-        StreamLength = hints.normal_property(_get_StreamLength)
-        def _get_Filename(self) -> hints.Incomplete: ...
-        def _set_Filename(self, pVal: hints.Incomplete) -> hints.Hresult: ...
-        Filename = hints.normal_property(_get_Filename, _set_Filename)
-        def GetBitmapBits(self, streamTime: hints.Incomplete, pBufferSize: hints.Incomplete, pBuffer: hints.Incomplete, Width: hints.Incomplete, Height: hints.Incomplete) -> hints.Hresult: ...
-        def WriteBitmapBits(self, streamTime: hints.Incomplete, Width: hints.Incomplete, Height: hints.Incomplete, Filename: hints.Incomplete) -> hints.Hresult: ...
-        def _get_StreamMediaType(self) -> hints.Incomplete: ...
-        StreamMediaType = hints.normal_property(_get_StreamMediaType)
-        def GetSampleGrabber(self) -> 'ISampleGrabber': ...
-        def _get_FrameRate(self) -> hints.Incomplete: ...
-        FrameRate = hints.normal_property(_get_FrameRate)
-        def EnterBitmapGrabMode(self, SeekTime: hints.Incomplete) -> hints.Hresult: ...
-
-
-MediaDet._com_interfaces_ = [IMediaDet]
-
-
-class NullRenderer(CoClass):
-    """NullRenderer Class"""
-    _reg_clsid_ = GUID('{C1F400A4-3F08-11D3-9F0B-006008039E37}')
-    _idlflags_ = []
-    _typelib_path_ = typelib_path
-    _reg_typelib_ = ('{78530B68-61F9-11D2-8CAD-00A024580902}', 1, 0)
-
-
-NullRenderer._com_interfaces_ = [IBaseFilter]
-
-
-class AMTimeline(CoClass):
-    """AMTimeline Class"""
-    _reg_clsid_ = GUID('{78530B75-61F9-11D2-8CAD-00A024580902}')
-    _idlflags_ = []
-    _typelib_path_ = typelib_path
-    _reg_typelib_ = ('{78530B68-61F9-11D2-8CAD-00A024580902}', 1, 0)
-
-
-AMTimeline._com_interfaces_ = [IAMTimeline, IPersistStream, IAMSetErrorLog]
-
-
-class IReferenceClock(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IUnknown):
-    _case_insensitive_ = True
-    _iid_ = GUID('{56A86897-0AD4-11CE-B03A-0020AF0BA770}')
-    _idlflags_ = []
-
-    if TYPE_CHECKING:  # commembers
-        def GetTime(self) -> hints.Incomplete: ...
-        def AdviseTime(self, baseTime: hints.Incomplete, streamTime: hints.Incomplete, hEvent: hints.Incomplete) -> hints.Incomplete: ...
-        def AdvisePeriodic(self, startTime: hints.Incomplete, periodTime: hints.Incomplete, hSemaphore: hints.Incomplete) -> hints.Incomplete: ...
-        def Unadvise(self, dwAdviseCookie: hints.Incomplete) -> hints.Hresult: ...
-
-
-IMediaFilter._methods_ = [
-    COMMETHOD([], HRESULT, 'Stop'),
-    COMMETHOD([], HRESULT, 'Pause'),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'Run',
-        ([], c_longlong, 'tStart')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'GetState',
-        (['in'], c_ulong, 'dwMilliSecsTimeout'),
-        (['out'], POINTER(_FilterState), 'State')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'SetSyncSource',
-        (['in'], POINTER(IReferenceClock), 'pClock')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'GetSyncSource',
-        (['out'], POINTER(POINTER(IReferenceClock)), 'pClock')
-    ),
-]
-
-################################################################
-# code template for IMediaFilter implementation
-# class IMediaFilter_Impl(object):
-#     def Stop(self):
-#         '-no docstring-'
-#         #return 
-#
-#     def Pause(self):
-#         '-no docstring-'
-#         #return 
-#
-#     def Run(self, tStart):
-#         '-no docstring-'
-#         #return 
-#
-#     def GetState(self, dwMilliSecsTimeout):
-#         '-no docstring-'
-#         #return State
-#
-#     def SetSyncSource(self, pClock):
-#         '-no docstring-'
-#         #return 
-#
-#     def GetSyncSource(self):
-#         '-no docstring-'
-#         #return pClock
-#
-
-
-class IEnumPins(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IUnknown):
-    _case_insensitive_ = True
-    _iid_ = GUID('{56A86892-0AD4-11CE-B03A-0020AF0BA770}')
-    _idlflags_ = []
-
-    def __iter__(self):
-        return self
-
-    def __next__(self):
-        item, fetched = self.Next(1)
-        if fetched:
-            return item
-        raise StopIteration
-
-    def __getitem__(self, index):
-        self.Reset()
-        self.Skip(index)
-        item, fetched = self.Next(1)
-        if fetched:
-            return item
-        raise IndexError(index)
-
-    if TYPE_CHECKING:  # commembers
-        def Next(self, cPins: hints.Incomplete) -> hints.Tuple['IPin', hints.Incomplete]: ...
-        def Skip(self, cPins: hints.Incomplete) -> hints.Hresult: ...
-        def Reset(self) -> hints.Hresult: ...
-        def Clone(self) -> 'IEnumPins': ...
-
-
-class _FilterInfo(Structure):
-    pass
-
-
-IBaseFilter._methods_ = [
-    COMMETHOD(
-        [],
-        HRESULT,
-        'EnumPins',
-        (['out'], POINTER(POINTER(IEnumPins)), 'ppEnum')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'FindPin',
-        (['in'], WSTRING, 'Id'),
-        (['out'], POINTER(POINTER(IPin)), 'ppPin')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'QueryFilterInfo',
-        (['out'], POINTER(_FilterInfo), 'pInfo')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'JoinFilterGraph',
-        (['in'], POINTER(IFilterGraph), 'pGraph'),
-        (['in'], WSTRING, 'pName')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'QueryVendorInfo',
-        (['out'], POINTER(WSTRING), 'pVendorInfo')
-    ),
-]
-
-################################################################
-# code template for IBaseFilter implementation
-# class IBaseFilter_Impl(object):
-#     def EnumPins(self):
-#         '-no docstring-'
-#         #return ppEnum
-#
-#     def FindPin(self, Id):
-#         '-no docstring-'
-#         #return ppPin
-#
-#     def QueryFilterInfo(self):
-#         '-no docstring-'
-#         #return pInfo
-#
-#     def JoinFilterGraph(self, pGraph, pName):
-#         '-no docstring-'
-#         #return 
-#
-#     def QueryVendorInfo(self):
-#         '-no docstring-'
-#         #return pVendorInfo
-#
-
-
-class DxtKey(CoClass):
-    """DxtKey Class"""
-    _reg_clsid_ = GUID('{C5B19592-145E-11D3-9F04-006008039E37}')
-    _idlflags_ = []
-    _typelib_path_ = typelib_path
-    _reg_typelib_ = ('{78530B68-61F9-11D2-8CAD-00A024580902}', 1, 0)
-
-
-class IDxtKey(IDXEffect):
-    """IDxtKey Interface"""
-    _case_insensitive_ = True
-    _iid_ = GUID('{3255DE56-38FB-4901-B980-94B438010D7B}')
-    _idlflags_ = ['dual', 'oleautomation']
-
-    if TYPE_CHECKING:  # commembers
-        def _get_KeyType(self) -> hints.Incomplete: ...
-        def _set_KeyType(self, __MIDL__IDxtKey0000: hints.Incomplete) -> hints.Hresult: ...
-        KeyType = hints.normal_property(_get_KeyType, _set_KeyType)
-        def _get_Hue(self) -> hints.Incomplete: ...
-        def _set_Hue(self, __MIDL__IDxtKey0002: hints.Incomplete) -> hints.Hresult: ...
-        Hue = hints.normal_property(_get_Hue, _set_Hue)
-        def _get_Luminance(self) -> hints.Incomplete: ...
-        def _set_Luminance(self, __MIDL__IDxtKey0004: hints.Incomplete) -> hints.Hresult: ...
-        Luminance = hints.normal_property(_get_Luminance, _set_Luminance)
-        def _get_RGB(self) -> hints.Incomplete: ...
-        def _set_RGB(self, __MIDL__IDxtKey0006: hints.Incomplete) -> hints.Hresult: ...
-        RGB = hints.normal_property(_get_RGB, _set_RGB)
-        def _get_Similarity(self) -> hints.Incomplete: ...
-        def _set_Similarity(self, __MIDL__IDxtKey0008: hints.Incomplete) -> hints.Hresult: ...
-        Similarity = hints.normal_property(_get_Similarity, _set_Similarity)
-        def _get_Invert(self) -> hints.Incomplete: ...
-        def _set_Invert(self, __MIDL__IDxtKey0010: hints.Incomplete) -> hints.Hresult: ...
-        Invert = hints.normal_property(_get_Invert, _set_Invert)
-
-
-DxtKey._com_interfaces_ = [IDxtKey]
-
-
-class tagSTATSTG(Structure):
-    pass
-
-
-IStream._methods_ = [
-    COMMETHOD(
-        [],
-        HRESULT,
-        'RemoteSeek',
-        (['in'], _LARGE_INTEGER, 'dlibMove'),
-        (['in'], c_ulong, 'dwOrigin'),
-        (['out'], POINTER(_ULARGE_INTEGER), 'plibNewPosition')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'SetSize',
-        (['in'], _ULARGE_INTEGER, 'libNewSize')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'RemoteCopyTo',
-        (['in'], POINTER(IStream), 'pstm'),
-        (['in'], _ULARGE_INTEGER, 'cb'),
-        (['out'], POINTER(_ULARGE_INTEGER), 'pcbRead'),
-        (['out'], POINTER(_ULARGE_INTEGER), 'pcbWritten')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'Commit',
-        (['in'], c_ulong, 'grfCommitFlags')
-    ),
-    COMMETHOD([], HRESULT, 'Revert'),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'LockRegion',
-        (['in'], _ULARGE_INTEGER, 'libOffset'),
-        (['in'], _ULARGE_INTEGER, 'cb'),
-        (['in'], c_ulong, 'dwLockType')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'UnlockRegion',
-        (['in'], _ULARGE_INTEGER, 'libOffset'),
-        (['in'], _ULARGE_INTEGER, 'cb'),
-        (['in'], c_ulong, 'dwLockType')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'Stat',
-        (['out'], POINTER(tagSTATSTG), 'pstatstg'),
-        (['in'], c_ulong, 'grfStatFlag')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'Clone',
-        (['out'], POINTER(POINTER(IStream)), 'ppstm')
-    ),
-]
-
-################################################################
-# code template for IStream implementation
-# class IStream_Impl(object):
-#     def RemoteSeek(self, dlibMove, dwOrigin):
-#         '-no docstring-'
-#         #return plibNewPosition
-#
-#     def SetSize(self, libNewSize):
-#         '-no docstring-'
-#         #return 
-#
-#     def RemoteCopyTo(self, pstm, cb):
-#         '-no docstring-'
-#         #return pcbRead, pcbWritten
-#
-#     def Commit(self, grfCommitFlags):
-#         '-no docstring-'
-#         #return 
-#
-#     def Revert(self):
-#         '-no docstring-'
-#         #return 
-#
-#     def LockRegion(self, libOffset, cb, dwLockType):
-#         '-no docstring-'
-#         #return 
-#
-#     def UnlockRegion(self, libOffset, cb, dwLockType):
-#         '-no docstring-'
-#         #return 
-#
-#     def Stat(self, grfStatFlag):
-#         '-no docstring-'
-#         #return pstatstg
-#
-#     def Clone(self):
-#         '-no docstring-'
-#         #return ppstm
-#
-
-IDxtKey._methods_ = [
-    COMMETHOD(
-        [dispid(1), helpstring('property KeyType'), 'propget'],
-        HRESULT,
-        'KeyType',
-        (['out', 'retval'], POINTER(c_int), '__MIDL__IDxtKey0000')
-    ),
-    COMMETHOD(
-        [dispid(1), helpstring('property KeyType'), 'propput'],
-        HRESULT,
-        'KeyType',
-        (['in'], c_int, '__MIDL__IDxtKey0000')
-    ),
-    COMMETHOD(
-        [dispid(2), helpstring('property Hue'), 'propget'],
-        HRESULT,
-        'Hue',
-        (['out', 'retval'], POINTER(c_int), '__MIDL__IDxtKey0002')
-    ),
-    COMMETHOD(
-        [dispid(2), helpstring('property Hue'), 'propput'],
-        HRESULT,
-        'Hue',
-        (['in'], c_int, '__MIDL__IDxtKey0002')
-    ),
-    COMMETHOD(
-        [dispid(3), helpstring('property Luminance'), 'propget'],
-        HRESULT,
-        'Luminance',
-        (['out', 'retval'], POINTER(c_int), '__MIDL__IDxtKey0004')
-    ),
-    COMMETHOD(
-        [dispid(3), helpstring('property Luminance'), 'propput'],
-        HRESULT,
-        'Luminance',
-        (['in'], c_int, '__MIDL__IDxtKey0004')
-    ),
-    COMMETHOD(
-        [dispid(4), helpstring('property RGB'), 'propget'],
-        HRESULT,
-        'RGB',
-        (['out', 'retval'], POINTER(c_ulong), '__MIDL__IDxtKey0006')
-    ),
-    COMMETHOD(
-        [dispid(4), helpstring('property RGB'), 'propput'],
-        HRESULT,
-        'RGB',
-        (['in'], c_ulong, '__MIDL__IDxtKey0006')
-    ),
-    COMMETHOD(
-        [dispid(5), helpstring('property Similarity'), 'propget'],
-        HRESULT,
-        'Similarity',
-        (['out', 'retval'], POINTER(c_int), '__MIDL__IDxtKey0008')
-    ),
-    COMMETHOD(
-        [dispid(5), helpstring('property Similarity'), 'propput'],
-        HRESULT,
-        'Similarity',
-        (['in'], c_int, '__MIDL__IDxtKey0008')
-    ),
-    COMMETHOD(
-        [dispid(6), helpstring('property Invert'), 'propget'],
-        HRESULT,
-        'Invert',
-        (['out', 'retval'], POINTER(c_int), '__MIDL__IDxtKey0010')
-    ),
-    COMMETHOD(
-        [dispid(6), helpstring('property Invert'), 'propput'],
-        HRESULT,
-        'Invert',
-        (['in'], c_int, '__MIDL__IDxtKey0010')
-    ),
-]
-
-################################################################
-# code template for IDxtKey implementation
-# class IDxtKey_Impl(object):
-#     def _get(self):
-#         'property KeyType'
-#         #return __MIDL__IDxtKey0000
-#     def _set(self, __MIDL__IDxtKey0000):
-#         'property KeyType'
-#     KeyType = property(_get, _set, doc = _set.__doc__)
-#
-#     def _get(self):
-#         'property Hue'
-#         #return __MIDL__IDxtKey0002
-#     def _set(self, __MIDL__IDxtKey0002):
-#         'property Hue'
-#     Hue = property(_get, _set, doc = _set.__doc__)
-#
-#     def _get(self):
-#         'property Luminance'
-#         #return __MIDL__IDxtKey0004
-#     def _set(self, __MIDL__IDxtKey0004):
-#         'property Luminance'
-#     Luminance = property(_get, _set, doc = _set.__doc__)
-#
-#     def _get(self):
-#         'property RGB'
-#         #return __MIDL__IDxtKey0006
-#     def _set(self, __MIDL__IDxtKey0006):
-#         'property RGB'
-#     RGB = property(_get, _set, doc = _set.__doc__)
-#
-#     def _get(self):
-#         'property Similarity'
-#         #return __MIDL__IDxtKey0008
-#     def _set(self, __MIDL__IDxtKey0008):
-#         'property Similarity'
-#     Similarity = property(_get, _set, doc = _set.__doc__)
-#
-#     def _get(self):
-#         'property Invert'
-#         #return __MIDL__IDxtKey0010
-#     def _set(self, __MIDL__IDxtKey0010):
-#         'property Invert'
-#     Invert = property(_get, _set, doc = _set.__doc__)
-#
-
-_FilterInfo._fields_ = [
-    ('achName', c_ushort * 128),
-    ('pGraph', POINTER(IFilterGraph)),
-]
-
-assert sizeof(_FilterInfo) == 264, sizeof(_FilterInfo)
-assert alignment(_FilterInfo) == 8, alignment(_FilterInfo)
-
-IReferenceClock._methods_ = [
-    COMMETHOD(
-        [],
-        HRESULT,
-        'GetTime',
-        (['out'], POINTER(c_longlong), 'pTime')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'AdviseTime',
-        (['in'], c_longlong, 'baseTime'),
-        (['in'], c_longlong, 'streamTime'),
-        (['in'], ULONG_PTR, 'hEvent'),
-        (['out'], POINTER(ULONG_PTR), 'pdwAdviseCookie')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'AdvisePeriodic',
-        (['in'], c_longlong, 'startTime'),
-        (['in'], c_longlong, 'periodTime'),
-        (['in'], ULONG_PTR, 'hSemaphore'),
-        (['out'], POINTER(ULONG_PTR), 'pdwAdviseCookie')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'Unadvise',
-        (['in'], ULONG_PTR, 'dwAdviseCookie')
-    ),
-]
-
-################################################################
-# code template for IReferenceClock implementation
-# class IReferenceClock_Impl(object):
-#     def GetTime(self):
-#         '-no docstring-'
-#         #return pTime
-#
-#     def AdviseTime(self, baseTime, streamTime, hEvent):
-#         '-no docstring-'
-#         #return pdwAdviseCookie
-#
-#     def AdvisePeriodic(self, startTime, periodTime, hSemaphore):
-#         '-no docstring-'
-#         #return pdwAdviseCookie
-#
-#     def Unadvise(self, dwAdviseCookie):
-#         '-no docstring-'
-#         #return 
-#
-
-
-class AMTimelineTrack(CoClass):
-    _reg_clsid_ = GUID('{8F6C3C50-897B-11D2-8CFB-00A0C9441E20}')
-    _idlflags_ = []
-    _typelib_path_ = typelib_path
-    _reg_typelib_ = ('{78530B68-61F9-11D2-8CAD-00A024580902}', 1, 0)
-
-
-class IAMTimelineTrack(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IUnknown):
-    """IAMTimelineTrack Interface"""
-    _case_insensitive_ = True
-    _iid_ = GUID('{EAE58538-622E-11D2-8CAD-00A024580902}')
-    _idlflags_ = []
-
-    if TYPE_CHECKING:  # commembers
-        def SrcAdd(self, pSource: hints.Incomplete) -> hints.Hresult: ...
-        def GetNextSrc(self, pInOut: hints.Incomplete) -> 'IAMTimelineObj': ...
-        def GetNextSrc2(self, pInOut: hints.Incomplete) -> 'IAMTimelineObj': ...
-        def MoveEverythingBy(self, Start: hints.Incomplete, MoveBy: hints.Incomplete) -> hints.Hresult: ...
-        def MoveEverythingBy2(self, Start: hints.Incomplete, MoveBy: hints.Incomplete) -> hints.Hresult: ...
-        def GetSourcesCount(self, pVal: hints.Incomplete) -> hints.Hresult: ...
-        def AreYouBlank(self, pVal: hints.Incomplete) -> hints.Hresult: ...
-        def GetSrcAtTime(self, Time: hints.Incomplete, SearchDirection: hints.Incomplete) -> 'IAMTimelineObj': ...
-        def GetSrcAtTime2(self, Time: hints.Incomplete, SearchDirection: hints.Incomplete) -> 'IAMTimelineObj': ...
-        def InsertSpace(self, rtStart: hints.Incomplete, rtEnd: hints.Incomplete) -> hints.Hresult: ...
-        def InsertSpace2(self, rtStart: hints.Incomplete, rtEnd: hints.Incomplete) -> hints.Hresult: ...
-        def ZeroBetween(self, rtStart: hints.Incomplete, rtEnd: hints.Incomplete) -> hints.Hresult: ...
-        def ZeroBetween2(self, rtStart: hints.Incomplete, rtEnd: hints.Incomplete) -> hints.Hresult: ...
-        def GetNextSrcEx(self, pLast: hints.Incomplete) -> 'IAMTimelineObj': ...
-
-
-class IAMTimelineEffectable(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IUnknown):
-    """IAMTimelineEffectable Interface"""
-    _case_insensitive_ = True
-    _iid_ = GUID('{EAE58537-622E-11D2-8CAD-00A024580902}')
-    _idlflags_ = []
-
-    if TYPE_CHECKING:  # commembers
-        def EffectInsBefore(self, pFX: hints.Incomplete, priority: hints.Incomplete) -> hints.Hresult: ...
-        def EffectSwapPriorities(self, PriorityA: hints.Incomplete, PriorityB: hints.Incomplete) -> hints.Hresult: ...
-        def EffectGetCount(self, pCount: hints.Incomplete) -> hints.Hresult: ...
-        def GetEffect(self, Which: hints.Incomplete) -> 'IAMTimelineObj': ...
-
-
-class IAMTimelineVirtualTrack(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IUnknown):
-    """IAMTimelineVirtualTrack Interface"""
-    _case_insensitive_ = True
-    _iid_ = GUID('{A8ED5F80-C2C7-11D2-8D39-00A0C9441E20}')
-    _idlflags_ = []
-
-    if TYPE_CHECKING:  # commembers
-        def TrackGetPriority(self, pPriority: hints.Incomplete) -> hints.Hresult: ...
-        def SetTrackDirty(self) -> hints.Hresult: ...
-
-
-class IAMTimelineSplittable(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IUnknown):
-    """IAMTimelineSplittable Interface"""
-    _case_insensitive_ = True
-    _iid_ = GUID('{A0F840A0-D590-11D2-8D55-00A0C9441E20}')
-    _idlflags_ = []
-
-    if TYPE_CHECKING:  # commembers
-        def SplitAt(self, Time: hints.Incomplete) -> hints.Hresult: ...
-        def SplitAt2(self, Time: hints.Incomplete) -> hints.Hresult: ...
-
-
-AMTimelineTrack._com_interfaces_ = [IAMTimelineTrack, IAMTimelineObj, IAMTimelineEffectable, IAMTimelineTransable, IAMTimelineVirtualTrack, IAMTimelineSplittable]
-
-_AMMediaType._fields_ = [
-    ('majortype', comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.GUID),
-    ('subtype', comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.GUID),
-    ('bFixedSizeSamples', c_int),
-    ('bTemporalCompression', c_int),
-    ('lSampleSize', c_ulong),
-    ('formattype', comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.GUID),
-    ('pUnk', POINTER(IUnknown)),
-    ('cbFormat', c_ulong),
-    ('pbFormat', POINTER(c_ubyte)),
-]
-
-assert sizeof(_AMMediaType) == 88, sizeof(_AMMediaType)
-assert alignment(_AMMediaType) == 8, alignment(_AMMediaType)
-
-IAMErrorLog._methods_ = [
-    COMMETHOD(
-        [helpstring('method LogError')],
-        HRESULT,
-        'LogError',
-        ([], c_int, 'Severity'),
-        ([], BSTR, 'pErrorString'),
-        ([], c_int, 'ErrorCode'),
-        ([], c_int, 'hresult'),
-        (['in'], POINTER(VARIANT), 'pExtraInfo')
-    ),
-]
-
-################################################################
-# code template for IAMErrorLog implementation
-# class IAMErrorLog_Impl(object):
-#     def LogError(self, Severity, pErrorString, ErrorCode, hresult, pExtraInfo):
-#         'method LogError'
-#         #return 
-#
-
-
-class AMTimelineComp(CoClass):
-    _reg_clsid_ = GUID('{74D2EC80-6233-11D2-8CAD-00A024580902}')
-    _idlflags_ = []
-    _typelib_path_ = typelib_path
-    _reg_typelib_ = ('{78530B68-61F9-11D2-8CAD-00A024580902}', 1, 0)
-
-
-class IAMTimelineComp(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IUnknown):
-    """IAMTimelineComp Interface"""
-    _case_insensitive_ = True
-    _iid_ = GUID('{EAE58536-622E-11D2-8CAD-00A024580902}')
-    _idlflags_ = []
-
-    if TYPE_CHECKING:  # commembers
-        def VTrackInsBefore(self, pVirtualTrack: hints.Incomplete, priority: hints.Incomplete) -> hints.Hresult: ...
-        def VTrackSwapPriorities(self, VirtualTrackA: hints.Incomplete, VirtualTrackB: hints.Incomplete) -> hints.Hresult: ...
-        def VTrackGetCount(self, pVal: hints.Incomplete) -> hints.Hresult: ...
-        def GetVTrack(self, Which: hints.Incomplete) -> 'IAMTimelineObj': ...
-        def GetCountOfType(self, pVal: hints.Incomplete, pValWithComps: hints.Incomplete, majortype: hints.Incomplete) -> hints.Hresult: ...
-        def GetRecursiveLayerOfType(self, WhichLayer: hints.Incomplete, Type: hints.Incomplete) -> 'IAMTimelineObj': ...
-        def GetRecursiveLayerOfTypeI(self, pWhichLayer: hints.Incomplete, Type: hints.Incomplete) -> hints.Tuple['IAMTimelineObj', hints.Incomplete]: ...
-        def GetNextVTrack(self, pVirtualTrack: hints.Incomplete) -> 'IAMTimelineObj': ...
-
-
-AMTimelineComp._com_interfaces_ = [IAMTimelineComp, IAMTimelineObj, IAMTimelineEffectable, IAMTimelineTransable, IAMTimelineVirtualTrack]
-
-IEnumPins._methods_ = [
-    COMMETHOD(
-        [],
-        HRESULT,
-        'Next',
-        (['in'], c_ulong, 'cPins'),
-        (['out'], POINTER(POINTER(IPin)), 'ppPins'),
-        (['out'], POINTER(c_ulong), 'pcFetched')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'Skip',
-        (['in'], c_ulong, 'cPins')
-    ),
-    COMMETHOD([], HRESULT, 'Reset'),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'Clone',
-        (['out'], POINTER(POINTER(IEnumPins)), 'ppEnum')
-    ),
-]
-
-################################################################
-# code template for IEnumPins implementation
-# class IEnumPins_Impl(object):
-#     def Next(self, cPins):
-#         '-no docstring-'
-#         #return ppPins, pcFetched
-#
-#     def Skip(self, cPins):
-#         '-no docstring-'
-#         #return 
-#
-#     def Reset(self):
-#         '-no docstring-'
-#         #return 
-#
-#     def Clone(self):
-#         '-no docstring-'
-#         #return ppEnum
-#
-
-
-class AudMixer(CoClass):
-    _reg_clsid_ = GUID('{036A9790-C153-11D2-9EF7-006008039E37}')
-    _idlflags_ = []
-    _typelib_path_ = typelib_path
-    _reg_typelib_ = ('{78530B68-61F9-11D2-8CAD-00A024580902}', 1, 0)
-
-
-AudMixer._com_interfaces_ = [IBaseFilter]
-
-tagSTATSTG._fields_ = [
-    ('pwcsName', WSTRING),
-    ('Type', c_ulong),
-    ('cbSize', _ULARGE_INTEGER),
-    ('mtime', _FILETIME),
-    ('ctime', _FILETIME),
-    ('atime', _FILETIME),
-    ('grfMode', c_ulong),
-    ('grfLocksSupported', c_ulong),
-    ('clsid', comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.GUID),
-    ('grfStateBits', c_ulong),
-    ('reserved', c_ulong),
-]
-
-assert sizeof(tagSTATSTG) == 80, sizeof(tagSTATSTG)
-assert alignment(tagSTATSTG) == 8, alignment(tagSTATSTG)
-
-
 class _PinInfo(Structure):
     pass
 
@@ -2536,86 +668,738 @@ IPin._methods_ = [
 #
 
 
-class Xml2Dex(CoClass):
-    """Xml2Dex Class"""
-    _reg_clsid_ = GUID('{18C628EE-962A-11D2-8D08-00A0C9441E20}')
+class MediaDet(CoClass):
+    """MediaDet Class"""
+    _reg_clsid_ = GUID('{65BD0711-24D2-4FF7-9324-ED2E5D3ABAFA}')
     _idlflags_ = []
     _typelib_path_ = typelib_path
     _reg_typelib_ = ('{78530B68-61F9-11D2-8CAD-00A024580902}', 1, 0)
 
 
-class IXml2Dex(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IDispatch):
-    """IXml2Dex Interface"""
+class IMediaDet(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IUnknown):
+    """IMediaDet Interface"""
     _case_insensitive_ = True
-    _iid_ = GUID('{18C628ED-962A-11D2-8D08-00A0C9441E20}')
+    _iid_ = GUID('{65BD0710-24D2-4FF7-9324-ED2E5D3ABAFA}')
     _idlflags_ = []
 
     if TYPE_CHECKING:  # commembers
-        def CreateGraphFromFile(self, pTimeline: hints.Incomplete, Filename: hints.Incomplete) -> hints.Incomplete: ...
-        def WriteGrfFile(self, pGraph: hints.Incomplete, Filename: hints.Incomplete) -> hints.Hresult: ...
-        def WriteXMLFile(self, pTimeline: hints.Incomplete, Filename: hints.Incomplete) -> hints.Hresult: ...
-        def ReadXMLFile(self, pTimeline: hints.Incomplete, XMLName: hints.Incomplete) -> hints.Hresult: ...
-        def Delete(self, pTimeline: hints.Incomplete, dStart: hints.Incomplete, dEnd: hints.Incomplete) -> hints.Hresult: ...
-        def WriteXMLPart(self, pTimeline: hints.Incomplete, dStart: hints.Incomplete, dEnd: hints.Incomplete, Filename: hints.Incomplete) -> hints.Hresult: ...
-        def PasteXMLFile(self, pTimeline: hints.Incomplete, dStart: hints.Incomplete, Filename: hints.Incomplete) -> hints.Hresult: ...
-        def CopyXML(self, pTimeline: hints.Incomplete, dStart: hints.Incomplete, dEnd: hints.Incomplete) -> hints.Hresult: ...
-        def PasteXML(self, pTimeline: hints.Incomplete, dStart: hints.Incomplete) -> hints.Hresult: ...
-        def Reset(self) -> hints.Hresult: ...
-        def ReadXML(self, pTimeline: hints.Incomplete, pxml: hints.Incomplete) -> hints.Hresult: ...
-        def WriteXML(self, pTimeline: hints.Incomplete, pbstrXML: hints.Incomplete) -> hints.Hresult: ...
+        def _get_Filter(self) -> hints.Incomplete: ...
+        def _set_Filter(self, pVal: hints.Incomplete) -> hints.Hresult: ...
+        Filter = hints.normal_property(_get_Filter, _set_Filter)
+        def _get_OutputStreams(self) -> hints.Incomplete: ...
+        OutputStreams = hints.normal_property(_get_OutputStreams)
+        def _get_CurrentStream(self) -> hints.Incomplete: ...
+        def _set_CurrentStream(self, pVal: hints.Incomplete) -> hints.Hresult: ...
+        CurrentStream = hints.normal_property(_get_CurrentStream, _set_CurrentStream)
+        def _get_StreamType(self) -> hints.Incomplete: ...
+        StreamType = hints.normal_property(_get_StreamType)
+        def _get_StreamTypeB(self) -> hints.Incomplete: ...
+        StreamTypeB = hints.normal_property(_get_StreamTypeB)
+        def _get_StreamLength(self) -> hints.Incomplete: ...
+        StreamLength = hints.normal_property(_get_StreamLength)
+        def _get_Filename(self) -> hints.Incomplete: ...
+        def _set_Filename(self, pVal: hints.Incomplete) -> hints.Hresult: ...
+        Filename = hints.normal_property(_get_Filename, _set_Filename)
+        def GetBitmapBits(self, streamTime: hints.Incomplete, pBufferSize: hints.Incomplete, pBuffer: hints.Incomplete, Width: hints.Incomplete, Height: hints.Incomplete) -> hints.Hresult: ...
+        def WriteBitmapBits(self, streamTime: hints.Incomplete, Width: hints.Incomplete, Height: hints.Incomplete, Filename: hints.Incomplete) -> hints.Hresult: ...
+        def _get_StreamMediaType(self) -> hints.Incomplete: ...
+        StreamMediaType = hints.normal_property(_get_StreamMediaType)
+        def GetSampleGrabber(self) -> 'ISampleGrabber': ...
+        def _get_FrameRate(self) -> hints.Incomplete: ...
+        FrameRate = hints.normal_property(_get_FrameRate)
+        def EnterBitmapGrabMode(self, SeekTime: hints.Incomplete) -> hints.Hresult: ...
 
 
-Xml2Dex._com_interfaces_ = [IXml2Dex]
+MediaDet._com_interfaces_ = [IMediaDet]
 
-IAMTimelineEffectable._methods_ = [
+
+class IAMSetErrorLog(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IUnknown):
+    """IAMSetErrorLog Interface"""
+    _case_insensitive_ = True
+    _iid_ = GUID('{963566DA-BE21-4EAF-88E9-35704F8F52A1}')
+    _idlflags_ = []
+
+    if TYPE_CHECKING:  # commembers
+        def _get_ErrorLog(self) -> 'IAMErrorLog': ...
+        def _set_ErrorLog(self, pVal: hints.Incomplete) -> hints.Hresult: ...
+        ErrorLog = hints.normal_property(_get_ErrorLog, _set_ErrorLog)
+
+
+class IAMErrorLog(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IUnknown):
+    """IAMErrorLog Interface"""
+    _case_insensitive_ = True
+    _iid_ = GUID('{E43E73A2-0EFA-11D3-9601-00A0C9441E20}')
+    _idlflags_ = []
+
+    if TYPE_CHECKING:  # commembers
+        def LogError(self, Severity: hints.Incomplete, pErrorString: hints.Incomplete, ErrorCode: hints.Incomplete, hresult: hints.Incomplete, pExtraInfo: hints.Incomplete) -> hints.Hresult: ...
+
+
+IAMSetErrorLog._methods_ = [
     COMMETHOD(
-        [helpstring('method EffectInsBefore')],
+        ['propget', helpstring('property ErrorLog')],
         HRESULT,
-        'EffectInsBefore',
-        ([], POINTER(IAMTimelineObj), 'pFX'),
-        ([], c_int, 'priority')
+        'ErrorLog',
+        (['out', 'retval'], POINTER(POINTER(IAMErrorLog)), 'pVal')
     ),
     COMMETHOD(
-        [helpstring('method EffectSwapPriorities')],
+        ['propput', helpstring('property ErrorLog')],
         HRESULT,
-        'EffectSwapPriorities',
-        ([], c_int, 'PriorityA'),
-        ([], c_int, 'PriorityB')
-    ),
-    COMMETHOD(
-        [helpstring('method EffectGetCount')],
-        HRESULT,
-        'EffectGetCount',
-        ([], POINTER(c_int), 'pCount')
-    ),
-    COMMETHOD(
-        [helpstring('method GetEffect')],
-        HRESULT,
-        'GetEffect',
-        (['out'], POINTER(POINTER(IAMTimelineObj)), 'ppFx'),
-        ([], c_int, 'Which')
+        'ErrorLog',
+        (['in'], POINTER(IAMErrorLog), 'pVal')
     ),
 ]
 
 ################################################################
-# code template for IAMTimelineEffectable implementation
-# class IAMTimelineEffectable_Impl(object):
-#     def EffectInsBefore(self, pFX, priority):
-#         'method EffectInsBefore'
+# code template for IAMSetErrorLog implementation
+# class IAMSetErrorLog_Impl(object):
+#     def _get(self):
+#         'property ErrorLog'
+#         #return pVal
+#     def _set(self, pVal):
+#         'property ErrorLog'
+#     ErrorLog = property(_get, _set, doc = _set.__doc__)
+#
+
+
+class IPersistStream(IPersist):
+    _case_insensitive_ = True
+    _iid_ = GUID('{00000109-0000-0000-C000-000000000046}')
+    _idlflags_ = []
+
+    if TYPE_CHECKING:  # commembers
+        def IsDirty(self) -> hints.Hresult: ...
+        def Load(self, pstm: hints.Incomplete) -> hints.Hresult: ...
+        def Save(self, pstm: hints.Incomplete, fClearDirty: hints.Incomplete) -> hints.Hresult: ...
+        def GetSizeMax(self) -> hints.Incomplete: ...
+
+
+class IStream(ISequentialStream):
+    _case_insensitive_ = True
+    _iid_ = GUID('{0000000C-0000-0000-C000-000000000046}')
+    _idlflags_ = []
+
+    if TYPE_CHECKING:  # commembers
+        def RemoteSeek(self, dlibMove: hints.Incomplete, dwOrigin: hints.Incomplete) -> hints.Incomplete: ...
+        def SetSize(self, libNewSize: hints.Incomplete) -> hints.Hresult: ...
+        def RemoteCopyTo(self, pstm: hints.Incomplete, cb: hints.Incomplete) -> hints.Tuple[hints.Incomplete, hints.Incomplete]: ...
+        def Commit(self, grfCommitFlags: hints.Incomplete) -> hints.Hresult: ...
+        def Revert(self) -> hints.Hresult: ...
+        def LockRegion(self, libOffset: hints.Incomplete, cb: hints.Incomplete, dwLockType: hints.Incomplete) -> hints.Hresult: ...
+        def UnlockRegion(self, libOffset: hints.Incomplete, cb: hints.Incomplete, dwLockType: hints.Incomplete) -> hints.Hresult: ...
+        def Stat(self, grfStatFlag: hints.Incomplete) -> hints.Incomplete: ...
+        def Clone(self) -> 'IStream': ...
+
+
+IPersistStream._methods_ = [
+    COMMETHOD([], HRESULT, 'IsDirty'),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'Load',
+        (['in'], POINTER(IStream), 'pstm')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'Save',
+        (['in'], POINTER(IStream), 'pstm'),
+        (['in'], c_int, 'fClearDirty')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'GetSizeMax',
+        (['out'], POINTER(_ULARGE_INTEGER), 'pcbSize')
+    ),
+]
+
+################################################################
+# code template for IPersistStream implementation
+# class IPersistStream_Impl(object):
+#     def IsDirty(self):
+#         '-no docstring-'
 #         #return 
 #
-#     def EffectSwapPriorities(self, PriorityA, PriorityB):
-#         'method EffectSwapPriorities'
+#     def Load(self, pstm):
+#         '-no docstring-'
 #         #return 
 #
-#     def EffectGetCount(self, pCount):
-#         'method EffectGetCount'
+#     def Save(self, pstm, fClearDirty):
+#         '-no docstring-'
 #         #return 
 #
-#     def GetEffect(self, Which):
-#         'method GetEffect'
-#         #return ppFx
+#     def GetSizeMax(self):
+#         '-no docstring-'
+#         #return pcbSize
 #
+
+
+class AMTimeline(CoClass):
+    """AMTimeline Class"""
+    _reg_clsid_ = GUID('{78530B75-61F9-11D2-8CAD-00A024580902}')
+    _idlflags_ = []
+    _typelib_path_ = typelib_path
+    _reg_typelib_ = ('{78530B68-61F9-11D2-8CAD-00A024580902}', 1, 0)
+
+
+AMTimeline._com_interfaces_ = [IAMTimeline, IPersistStream, IAMSetErrorLog]
+
+
+class tagSTATSTG(Structure):
+    pass
+
+
+IStream._methods_ = [
+    COMMETHOD(
+        [],
+        HRESULT,
+        'RemoteSeek',
+        (['in'], _LARGE_INTEGER, 'dlibMove'),
+        (['in'], c_ulong, 'dwOrigin'),
+        (['out'], POINTER(_ULARGE_INTEGER), 'plibNewPosition')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'SetSize',
+        (['in'], _ULARGE_INTEGER, 'libNewSize')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'RemoteCopyTo',
+        (['in'], POINTER(IStream), 'pstm'),
+        (['in'], _ULARGE_INTEGER, 'cb'),
+        (['out'], POINTER(_ULARGE_INTEGER), 'pcbRead'),
+        (['out'], POINTER(_ULARGE_INTEGER), 'pcbWritten')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'Commit',
+        (['in'], c_ulong, 'grfCommitFlags')
+    ),
+    COMMETHOD([], HRESULT, 'Revert'),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'LockRegion',
+        (['in'], _ULARGE_INTEGER, 'libOffset'),
+        (['in'], _ULARGE_INTEGER, 'cb'),
+        (['in'], c_ulong, 'dwLockType')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'UnlockRegion',
+        (['in'], _ULARGE_INTEGER, 'libOffset'),
+        (['in'], _ULARGE_INTEGER, 'cb'),
+        (['in'], c_ulong, 'dwLockType')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'Stat',
+        (['out'], POINTER(tagSTATSTG), 'pstatstg'),
+        (['in'], c_ulong, 'grfStatFlag')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'Clone',
+        (['out'], POINTER(POINTER(IStream)), 'ppstm')
+    ),
+]
+
+################################################################
+# code template for IStream implementation
+# class IStream_Impl(object):
+#     def RemoteSeek(self, dlibMove, dwOrigin):
+#         '-no docstring-'
+#         #return plibNewPosition
+#
+#     def SetSize(self, libNewSize):
+#         '-no docstring-'
+#         #return 
+#
+#     def RemoteCopyTo(self, pstm, cb):
+#         '-no docstring-'
+#         #return pcbRead, pcbWritten
+#
+#     def Commit(self, grfCommitFlags):
+#         '-no docstring-'
+#         #return 
+#
+#     def Revert(self):
+#         '-no docstring-'
+#         #return 
+#
+#     def LockRegion(self, libOffset, cb, dwLockType):
+#         '-no docstring-'
+#         #return 
+#
+#     def UnlockRegion(self, libOffset, cb, dwLockType):
+#         '-no docstring-'
+#         #return 
+#
+#     def Stat(self, grfStatFlag):
+#         '-no docstring-'
+#         #return pstatstg
+#
+#     def Clone(self):
+#         '-no docstring-'
+#         #return ppstm
+#
+
+IEnumMediaTypes._methods_ = [
+    COMMETHOD(
+        [],
+        HRESULT,
+        'Next',
+        (['in'], c_ulong, 'cMediaTypes'),
+        (['out'], POINTER(POINTER(_AMMediaType)), 'ppMediaTypes'),
+        (['out'], POINTER(c_ulong), 'pcFetched')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'Skip',
+        (['in'], c_ulong, 'cMediaTypes')
+    ),
+    COMMETHOD([], HRESULT, 'Reset'),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'Clone',
+        (['out'], POINTER(POINTER(IEnumMediaTypes)), 'ppEnum')
+    ),
+]
+
+################################################################
+# code template for IEnumMediaTypes implementation
+# class IEnumMediaTypes_Impl(object):
+#     def Next(self, cMediaTypes):
+#         '-no docstring-'
+#         #return ppMediaTypes, pcFetched
+#
+#     def Skip(self, cMediaTypes):
+#         '-no docstring-'
+#         #return 
+#
+#     def Reset(self):
+#         '-no docstring-'
+#         #return 
+#
+#     def Clone(self):
+#         '-no docstring-'
+#         #return ppEnum
+#
+
+
+class AMTimelineTrack(CoClass):
+    _reg_clsid_ = GUID('{8F6C3C50-897B-11D2-8CFB-00A0C9441E20}')
+    _idlflags_ = []
+    _typelib_path_ = typelib_path
+    _reg_typelib_ = ('{78530B68-61F9-11D2-8CAD-00A024580902}', 1, 0)
+
+
+class IAMTimelineTrack(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IUnknown):
+    """IAMTimelineTrack Interface"""
+    _case_insensitive_ = True
+    _iid_ = GUID('{EAE58538-622E-11D2-8CAD-00A024580902}')
+    _idlflags_ = []
+
+    if TYPE_CHECKING:  # commembers
+        def SrcAdd(self, pSource: hints.Incomplete) -> hints.Hresult: ...
+        def GetNextSrc(self, pInOut: hints.Incomplete) -> 'IAMTimelineObj': ...
+        def GetNextSrc2(self, pInOut: hints.Incomplete) -> 'IAMTimelineObj': ...
+        def MoveEverythingBy(self, Start: hints.Incomplete, MoveBy: hints.Incomplete) -> hints.Hresult: ...
+        def MoveEverythingBy2(self, Start: hints.Incomplete, MoveBy: hints.Incomplete) -> hints.Hresult: ...
+        def GetSourcesCount(self, pVal: hints.Incomplete) -> hints.Hresult: ...
+        def AreYouBlank(self, pVal: hints.Incomplete) -> hints.Hresult: ...
+        def GetSrcAtTime(self, Time: hints.Incomplete, SearchDirection: hints.Incomplete) -> 'IAMTimelineObj': ...
+        def GetSrcAtTime2(self, Time: hints.Incomplete, SearchDirection: hints.Incomplete) -> 'IAMTimelineObj': ...
+        def InsertSpace(self, rtStart: hints.Incomplete, rtEnd: hints.Incomplete) -> hints.Hresult: ...
+        def InsertSpace2(self, rtStart: hints.Incomplete, rtEnd: hints.Incomplete) -> hints.Hresult: ...
+        def ZeroBetween(self, rtStart: hints.Incomplete, rtEnd: hints.Incomplete) -> hints.Hresult: ...
+        def ZeroBetween2(self, rtStart: hints.Incomplete, rtEnd: hints.Incomplete) -> hints.Hresult: ...
+        def GetNextSrcEx(self, pLast: hints.Incomplete) -> 'IAMTimelineObj': ...
+
+
+class IAMTimelineObj(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IUnknown):
+    """IAMTimelineObj Interface"""
+    _case_insensitive_ = True
+    _iid_ = GUID('{78530B77-61F9-11D2-8CAD-00A024580902}')
+    _idlflags_ = []
+
+    if TYPE_CHECKING:  # commembers
+        def GetStartStop(self, pStart: hints.Incomplete, pStop: hints.Incomplete) -> hints.Hresult: ...
+        def GetStartStop2(self, pStart: hints.Incomplete, pStop: hints.Incomplete) -> hints.Hresult: ...
+        def FixTimes(self, pStart: hints.Incomplete, pStop: hints.Incomplete) -> hints.Hresult: ...
+        def FixTimes2(self, pStart: hints.Incomplete, pStop: hints.Incomplete) -> hints.Hresult: ...
+        def SetStartStop(self, Start: hints.Incomplete, Stop: hints.Incomplete) -> hints.Hresult: ...
+        def SetStartStop2(self, Start: hints.Incomplete, Stop: hints.Incomplete) -> hints.Hresult: ...
+        def GetPropertySetter(self) -> 'IPropertySetter': ...
+        def SetPropertySetter(self, newVal: hints.Incomplete) -> hints.Hresult: ...
+        def GetSubObject(self) -> hints.Incomplete: ...
+        def SetSubObject(self, newVal: hints.Incomplete) -> hints.Hresult: ...
+        def SetSubObjectGUID(self, newVal: hints.Incomplete) -> hints.Hresult: ...
+        def SetSubObjectGUIDB(self, newVal: hints.Incomplete) -> hints.Hresult: ...
+        def GetSubObjectGUID(self, pVal: hints.Incomplete) -> hints.Hresult: ...
+        def GetSubObjectGUIDB(self) -> hints.Incomplete: ...
+        def GetSubObjectLoaded(self, pVal: hints.Incomplete) -> hints.Hresult: ...
+        def GetTimelineType(self, pVal: hints.Incomplete) -> hints.Hresult: ...
+        def SetTimelineType(self, newVal: hints.Incomplete) -> hints.Hresult: ...
+        def GetUserID(self, pVal: hints.Incomplete) -> hints.Hresult: ...
+        def SetUserID(self, newVal: hints.Incomplete) -> hints.Hresult: ...
+        def GetGenID(self, pVal: hints.Incomplete) -> hints.Hresult: ...
+        def GetUserName(self) -> hints.Incomplete: ...
+        def SetUserName(self, newVal: hints.Incomplete) -> hints.Hresult: ...
+        def GetUserData(self, pData: hints.Incomplete, pSize: hints.Incomplete) -> hints.Hresult: ...
+        def SetUserData(self, pData: hints.Incomplete, Size: hints.Incomplete) -> hints.Hresult: ...
+        def GetMuted(self, pVal: hints.Incomplete) -> hints.Hresult: ...
+        def SetMuted(self, newVal: hints.Incomplete) -> hints.Hresult: ...
+        def GetLocked(self, pVal: hints.Incomplete) -> hints.Hresult: ...
+        def SetLocked(self, newVal: hints.Incomplete) -> hints.Hresult: ...
+        def GetDirtyRange(self, pStart: hints.Incomplete, pStop: hints.Incomplete) -> hints.Hresult: ...
+        def GetDirtyRange2(self, pStart: hints.Incomplete, pStop: hints.Incomplete) -> hints.Hresult: ...
+        def SetDirtyRange(self, Start: hints.Incomplete, Stop: hints.Incomplete) -> hints.Hresult: ...
+        def SetDirtyRange2(self, Start: hints.Incomplete, Stop: hints.Incomplete) -> hints.Hresult: ...
+        def ClearDirty(self) -> hints.Hresult: ...
+        def Remove(self) -> hints.Hresult: ...
+        def RemoveAll(self) -> hints.Hresult: ...
+        def GetTimelineNoRef(self, ppResult: hints.Incomplete) -> hints.Hresult: ...
+        def GetGroupIBelongTo(self) -> 'IAMTimelineGroup': ...
+        def GetEmbedDepth(self, pVal: hints.Incomplete) -> hints.Hresult: ...
+
+
+class IAMTimelineEffectable(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IUnknown):
+    """IAMTimelineEffectable Interface"""
+    _case_insensitive_ = True
+    _iid_ = GUID('{EAE58537-622E-11D2-8CAD-00A024580902}')
+    _idlflags_ = []
+
+    if TYPE_CHECKING:  # commembers
+        def EffectInsBefore(self, pFX: hints.Incomplete, priority: hints.Incomplete) -> hints.Hresult: ...
+        def EffectSwapPriorities(self, PriorityA: hints.Incomplete, PriorityB: hints.Incomplete) -> hints.Hresult: ...
+        def EffectGetCount(self, pCount: hints.Incomplete) -> hints.Hresult: ...
+        def GetEffect(self, Which: hints.Incomplete) -> 'IAMTimelineObj': ...
+
+
+class IAMTimelineTransable(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IUnknown):
+    """IAMTimelineTransable Interface"""
+    _case_insensitive_ = True
+    _iid_ = GUID('{378FA386-622E-11D2-8CAD-00A024580902}')
+    _idlflags_ = []
+
+    if TYPE_CHECKING:  # commembers
+        def TransAdd(self, pTrans: hints.Incomplete) -> hints.Hresult: ...
+        def TransGetCount(self, pCount: hints.Incomplete) -> hints.Hresult: ...
+        def GetNextTrans(self, pInOut: hints.Incomplete) -> 'IAMTimelineObj': ...
+        def GetNextTrans2(self, pInOut: hints.Incomplete) -> 'IAMTimelineObj': ...
+        def GetTransAtTime(self, Time: hints.Incomplete, SearchDirection: hints.Incomplete) -> 'IAMTimelineObj': ...
+        def GetTransAtTime2(self, Time: hints.Incomplete, SearchDirection: hints.Incomplete) -> 'IAMTimelineObj': ...
+
+
+class IAMTimelineVirtualTrack(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IUnknown):
+    """IAMTimelineVirtualTrack Interface"""
+    _case_insensitive_ = True
+    _iid_ = GUID('{A8ED5F80-C2C7-11D2-8D39-00A0C9441E20}')
+    _idlflags_ = []
+
+    if TYPE_CHECKING:  # commembers
+        def TrackGetPriority(self, pPriority: hints.Incomplete) -> hints.Hresult: ...
+        def SetTrackDirty(self) -> hints.Hresult: ...
+
+
+class IAMTimelineSplittable(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IUnknown):
+    """IAMTimelineSplittable Interface"""
+    _case_insensitive_ = True
+    _iid_ = GUID('{A0F840A0-D590-11D2-8D55-00A0C9441E20}')
+    _idlflags_ = []
+
+    if TYPE_CHECKING:  # commembers
+        def SplitAt(self, Time: hints.Incomplete) -> hints.Hresult: ...
+        def SplitAt2(self, Time: hints.Incomplete) -> hints.Hresult: ...
+
+
+AMTimelineTrack._com_interfaces_ = [IAMTimelineTrack, IAMTimelineObj, IAMTimelineEffectable, IAMTimelineTransable, IAMTimelineVirtualTrack, IAMTimelineSplittable]
+
+
+class IEnumFilters(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IUnknown):
+    _case_insensitive_ = True
+    _iid_ = GUID('{56A86893-0AD4-11CE-B03A-0020AF0BA770}')
+    _idlflags_ = []
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        item, fetched = self.Next(1)
+        if fetched:
+            return item
+        raise StopIteration
+
+    def __getitem__(self, index):
+        self.Reset()
+        self.Skip(index)
+        item, fetched = self.Next(1)
+        if fetched:
+            return item
+        raise IndexError(index)
+
+    if TYPE_CHECKING:  # commembers
+        def Next(self, cFilters: hints.Incomplete) -> hints.Tuple['IBaseFilter', hints.Incomplete]: ...
+        def Skip(self, cFilters: hints.Incomplete) -> hints.Hresult: ...
+        def Reset(self) -> hints.Hresult: ...
+        def Clone(self) -> 'IEnumFilters': ...
+
+
+class IMediaFilter(IPersist):
+    _case_insensitive_ = True
+    _iid_ = GUID('{56A86899-0AD4-11CE-B03A-0020AF0BA770}')
+    _idlflags_ = []
+
+    if TYPE_CHECKING:  # commembers
+        def Stop(self) -> hints.Hresult: ...
+        def Pause(self) -> hints.Hresult: ...
+        def Run(self, tStart: hints.Incomplete) -> hints.Hresult: ...
+        def GetState(self, dwMilliSecsTimeout: hints.Incomplete) -> hints.Incomplete: ...
+        def SetSyncSource(self, pClock: hints.Incomplete) -> hints.Hresult: ...
+        def GetSyncSource(self) -> 'IReferenceClock': ...
+
+
+class IBaseFilter(IMediaFilter):
+    _case_insensitive_ = True
+    _iid_ = GUID('{56A86895-0AD4-11CE-B03A-0020AF0BA770}')
+    _idlflags_ = []
+
+    if TYPE_CHECKING:  # commembers
+        def EnumPins(self) -> 'IEnumPins': ...
+        def FindPin(self, Id: hints.Incomplete) -> 'IPin': ...
+        def QueryFilterInfo(self) -> hints.Incomplete: ...
+        def JoinFilterGraph(self, pGraph: hints.Incomplete, pName: hints.Incomplete) -> hints.Hresult: ...
+        def QueryVendorInfo(self) -> hints.Incomplete: ...
+
+
+IEnumFilters._methods_ = [
+    COMMETHOD(
+        [],
+        HRESULT,
+        'Next',
+        (['in'], c_ulong, 'cFilters'),
+        (['out'], POINTER(POINTER(IBaseFilter)), 'ppFilter'),
+        (['out'], POINTER(c_ulong), 'pcFetched')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'Skip',
+        (['in'], c_ulong, 'cFilters')
+    ),
+    COMMETHOD([], HRESULT, 'Reset'),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'Clone',
+        (['out'], POINTER(POINTER(IEnumFilters)), 'ppEnum')
+    ),
+]
+
+################################################################
+# code template for IEnumFilters implementation
+# class IEnumFilters_Impl(object):
+#     def Next(self, cFilters):
+#         '-no docstring-'
+#         #return ppFilter, pcFetched
+#
+#     def Skip(self, cFilters):
+#         '-no docstring-'
+#         #return 
+#
+#     def Reset(self):
+#         '-no docstring-'
+#         #return 
+#
+#     def Clone(self):
+#         '-no docstring-'
+#         #return ppEnum
+#
+
+IAMErrorLog._methods_ = [
+    COMMETHOD(
+        [helpstring('method LogError')],
+        HRESULT,
+        'LogError',
+        ([], c_int, 'Severity'),
+        ([], BSTR, 'pErrorString'),
+        ([], c_int, 'ErrorCode'),
+        ([], c_int, 'hresult'),
+        (['in'], POINTER(VARIANT), 'pExtraInfo')
+    ),
+]
+
+################################################################
+# code template for IAMErrorLog implementation
+# class IAMErrorLog_Impl(object):
+#     def LogError(self, Severity, pErrorString, ErrorCode, hresult, pExtraInfo):
+#         'method LogError'
+#         #return 
+#
+
+
+class AMTimelineComp(CoClass):
+    _reg_clsid_ = GUID('{74D2EC80-6233-11D2-8CAD-00A024580902}')
+    _idlflags_ = []
+    _typelib_path_ = typelib_path
+    _reg_typelib_ = ('{78530B68-61F9-11D2-8CAD-00A024580902}', 1, 0)
+
+
+class IAMTimelineComp(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IUnknown):
+    """IAMTimelineComp Interface"""
+    _case_insensitive_ = True
+    _iid_ = GUID('{EAE58536-622E-11D2-8CAD-00A024580902}')
+    _idlflags_ = []
+
+    if TYPE_CHECKING:  # commembers
+        def VTrackInsBefore(self, pVirtualTrack: hints.Incomplete, priority: hints.Incomplete) -> hints.Hresult: ...
+        def VTrackSwapPriorities(self, VirtualTrackA: hints.Incomplete, VirtualTrackB: hints.Incomplete) -> hints.Hresult: ...
+        def VTrackGetCount(self, pVal: hints.Incomplete) -> hints.Hresult: ...
+        def GetVTrack(self, Which: hints.Incomplete) -> 'IAMTimelineObj': ...
+        def GetCountOfType(self, pVal: hints.Incomplete, pValWithComps: hints.Incomplete, majortype: hints.Incomplete) -> hints.Hresult: ...
+        def GetRecursiveLayerOfType(self, WhichLayer: hints.Incomplete, Type: hints.Incomplete) -> 'IAMTimelineObj': ...
+        def GetRecursiveLayerOfTypeI(self, pWhichLayer: hints.Incomplete, Type: hints.Incomplete) -> hints.Tuple['IAMTimelineObj', hints.Incomplete]: ...
+        def GetNextVTrack(self, pVirtualTrack: hints.Incomplete) -> 'IAMTimelineObj': ...
+
+
+AMTimelineComp._com_interfaces_ = [IAMTimelineComp, IAMTimelineObj, IAMTimelineEffectable, IAMTimelineTransable, IAMTimelineVirtualTrack]
+
+
+class IGrfCache(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IDispatch):
+    """IGrfCache Interface"""
+    _case_insensitive_ = True
+    _iid_ = GUID('{AE9472BE-B0C3-11D2-8D24-00A0C9441E20}')
+    _idlflags_ = []
+
+    if TYPE_CHECKING:  # commembers
+        def AddFilter(self, ChainedCache: hints.Incomplete, Id: hints.Incomplete, pFilter: hints.Incomplete, pName: hints.Incomplete) -> hints.Hresult: ...
+        def ConnectPins(self, ChainedCache: hints.Incomplete, PinID1: hints.Incomplete, pPin1: hints.Incomplete, PinID2: hints.Incomplete, pPin2: hints.Incomplete) -> hints.Hresult: ...
+        def SetGraph(self, pGraph: hints.Incomplete) -> hints.Hresult: ...
+        def DoConnectionsNow(self) -> hints.Hresult: ...
+
+
+class IFilterGraph(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IUnknown):
+    _case_insensitive_ = True
+    _iid_ = GUID('{56A8689F-0AD4-11CE-B03A-0020AF0BA770}')
+    _idlflags_ = []
+
+    if TYPE_CHECKING:  # commembers
+        def AddFilter(self, pFilter: hints.Incomplete, pName: hints.Incomplete) -> hints.Hresult: ...
+        def RemoveFilter(self, pFilter: hints.Incomplete) -> hints.Hresult: ...
+        def EnumFilters(self) -> 'IEnumFilters': ...
+        def FindFilterByName(self, pName: hints.Incomplete) -> 'IBaseFilter': ...
+        def ConnectDirect(self, ppinOut: hints.Incomplete, ppinIn: hints.Incomplete, pmt: hints.Incomplete) -> hints.Hresult: ...
+        def Reconnect(self, pPin: hints.Incomplete) -> hints.Hresult: ...
+        def Disconnect(self, pPin: hints.Incomplete) -> hints.Hresult: ...
+        def SetDefaultSyncSource(self) -> hints.Hresult: ...
+
+
+class IGraphBuilder(IFilterGraph):
+    _case_insensitive_ = True
+    _iid_ = GUID('{56A868A9-0AD4-11CE-B03A-0020AF0BA770}')
+    _idlflags_ = []
+
+    if TYPE_CHECKING:  # commembers
+        def Connect(self, ppinOut: hints.Incomplete, ppinIn: hints.Incomplete) -> hints.Hresult: ...
+        def Render(self, ppinOut: hints.Incomplete) -> hints.Hresult: ...
+        def RenderFile(self, lpcwstrFile: hints.Incomplete, lpcwstrPlayList: hints.Incomplete) -> hints.Hresult: ...
+        def AddSourceFilter(self, lpcwstrFileName: hints.Incomplete, lpcwstrFilterName: hints.Incomplete) -> 'IBaseFilter': ...
+        def SetLogFile(self, hFile: hints.Incomplete) -> hints.Hresult: ...
+        def Abort(self) -> hints.Hresult: ...
+        def ShouldOperationContinue(self) -> hints.Hresult: ...
+
+
+IGrfCache._methods_ = [
+    COMMETHOD(
+        [helpstring('method AddFilter')],
+        HRESULT,
+        'AddFilter',
+        ([], POINTER(IGrfCache), 'ChainedCache'),
+        ([], c_longlong, 'Id'),
+        ([], POINTER(IBaseFilter), 'pFilter'),
+        ([], WSTRING, 'pName')
+    ),
+    COMMETHOD(
+        [helpstring('method ConnectPins')],
+        HRESULT,
+        'ConnectPins',
+        ([], POINTER(IGrfCache), 'ChainedCache'),
+        ([], c_longlong, 'PinID1'),
+        ([], POINTER(IPin), 'pPin1'),
+        ([], c_longlong, 'PinID2'),
+        ([], POINTER(IPin), 'pPin2')
+    ),
+    COMMETHOD(
+        [helpstring('method SetGraph')],
+        HRESULT,
+        'SetGraph',
+        ([], POINTER(IGraphBuilder), 'pGraph')
+    ),
+    COMMETHOD(
+        [helpstring('method DoConnectionsNow')],
+        HRESULT,
+        'DoConnectionsNow',
+    ),
+]
+
+################################################################
+# code template for IGrfCache implementation
+# class IGrfCache_Impl(object):
+#     def AddFilter(self, ChainedCache, Id, pFilter, pName):
+#         'method AddFilter'
+#         #return 
+#
+#     def ConnectPins(self, ChainedCache, PinID1, pPin1, PinID2, pPin2):
+#         'method ConnectPins'
+#         #return 
+#
+#     def SetGraph(self, pGraph):
+#         'method SetGraph'
+#         #return 
+#
+#     def DoConnectionsNow(self):
+#         'method DoConnectionsNow'
+#         #return 
+#
+
+
+class _FilterInfo(Structure):
+    pass
+
+
+_FilterInfo._fields_ = [
+    ('achName', c_ushort * 128),
+    ('pGraph', POINTER(IFilterGraph)),
+]
+
+assert sizeof(_FilterInfo) == 264, sizeof(_FilterInfo)
+assert alignment(_FilterInfo) == 8, alignment(_FilterInfo)
+
+_AMMediaType._fields_ = [
+    ('majortype', comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.GUID),
+    ('subtype', comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.GUID),
+    ('bFixedSizeSamples', c_int),
+    ('bTemporalCompression', c_int),
+    ('lSampleSize', c_ulong),
+    ('formattype', comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.GUID),
+    ('pUnk', POINTER(IUnknown)),
+    ('cbFormat', c_ulong),
+    ('pbFormat', POINTER(c_ubyte)),
+]
+
+assert sizeof(_AMMediaType) == 88, sizeof(_AMMediaType)
+assert alignment(_AMMediaType) == 8, alignment(_AMMediaType)
 
 IAMTimelineSrc._methods_ = [
     COMMETHOD(
@@ -2850,56 +1634,176 @@ IAMTimelineSrc._methods_ = [
 #         #return 
 #
 
-IEnumMediaTypes._methods_ = [
+
+class IRenderEngine2(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IUnknown):
+    """IRenderEngine2 Interface"""
+    _case_insensitive_ = True
+    _iid_ = GUID('{6BEE3A82-66C9-11D2-918F-00C0DF10D434}')
+    _idlflags_ = []
+
+    if TYPE_CHECKING:  # commembers
+        def SetResizerGUID(self, ResizerGuid: hints.Incomplete) -> hints.Hresult: ...
+
+
+IRenderEngine2._methods_ = [
     COMMETHOD(
         [],
         HRESULT,
-        'Next',
-        (['in'], c_ulong, 'cMediaTypes'),
-        (['out'], POINTER(POINTER(_AMMediaType)), 'ppMediaTypes'),
-        (['out'], POINTER(c_ulong), 'pcFetched')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'Skip',
-        (['in'], c_ulong, 'cMediaTypes')
-    ),
-    COMMETHOD([], HRESULT, 'Reset'),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'Clone',
-        (['out'], POINTER(POINTER(IEnumMediaTypes)), 'ppEnum')
+        'SetResizerGUID',
+        (
+            [],
+            comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.GUID,
+            'ResizerGuid',
+        )
     ),
 ]
 
 ################################################################
-# code template for IEnumMediaTypes implementation
-# class IEnumMediaTypes_Impl(object):
-#     def Next(self, cMediaTypes):
-#         '-no docstring-'
-#         #return ppMediaTypes, pcFetched
-#
-#     def Skip(self, cMediaTypes):
+# code template for IRenderEngine2 implementation
+# class IRenderEngine2_Impl(object):
+#     def SetResizerGUID(self, ResizerGuid):
 #         '-no docstring-'
 #         #return 
 #
-#     def Reset(self):
-#         '-no docstring-'
+
+tagSTATSTG._fields_ = [
+    ('pwcsName', WSTRING),
+    ('Type', c_ulong),
+    ('cbSize', _ULARGE_INTEGER),
+    ('mtime', _FILETIME),
+    ('ctime', _FILETIME),
+    ('atime', _FILETIME),
+    ('grfMode', c_ulong),
+    ('grfLocksSupported', c_ulong),
+    ('clsid', comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.GUID),
+    ('grfStateBits', c_ulong),
+    ('reserved', c_ulong),
+]
+
+assert sizeof(tagSTATSTG) == 80, sizeof(tagSTATSTG)
+assert alignment(tagSTATSTG) == 8, alignment(tagSTATSTG)
+
+IAMTimelineEffectable._methods_ = [
+    COMMETHOD(
+        [helpstring('method EffectInsBefore')],
+        HRESULT,
+        'EffectInsBefore',
+        ([], POINTER(IAMTimelineObj), 'pFX'),
+        ([], c_int, 'priority')
+    ),
+    COMMETHOD(
+        [helpstring('method EffectSwapPriorities')],
+        HRESULT,
+        'EffectSwapPriorities',
+        ([], c_int, 'PriorityA'),
+        ([], c_int, 'PriorityB')
+    ),
+    COMMETHOD(
+        [helpstring('method EffectGetCount')],
+        HRESULT,
+        'EffectGetCount',
+        ([], POINTER(c_int), 'pCount')
+    ),
+    COMMETHOD(
+        [helpstring('method GetEffect')],
+        HRESULT,
+        'GetEffect',
+        (['out'], POINTER(POINTER(IAMTimelineObj)), 'ppFx'),
+        ([], c_int, 'Which')
+    ),
+]
+
+################################################################
+# code template for IAMTimelineEffectable implementation
+# class IAMTimelineEffectable_Impl(object):
+#     def EffectInsBefore(self, pFX, priority):
+#         'method EffectInsBefore'
 #         #return 
 #
-#     def Clone(self):
-#         '-no docstring-'
-#         #return ppEnum
+#     def EffectSwapPriorities(self, PriorityA, PriorityB):
+#         'method EffectSwapPriorities'
+#         #return 
+#
+#     def EffectGetCount(self, pCount):
+#         'method EffectGetCount'
+#         #return 
+#
+#     def GetEffect(self, Which):
+#         'method GetEffect'
+#         #return ppFx
 #
 
 
-class AMTimelineTrans(CoClass):
-    _reg_clsid_ = GUID('{74D2EC81-6233-11D2-8CAD-00A024580902}')
+class AudMixer(CoClass):
+    _reg_clsid_ = GUID('{036A9790-C153-11D2-9EF7-006008039E37}')
     _idlflags_ = []
     _typelib_path_ = typelib_path
     _reg_typelib_ = ('{78530B68-61F9-11D2-8CAD-00A024580902}', 1, 0)
+
+
+AudMixer._com_interfaces_ = [IBaseFilter]
+
+
+class ISmartRenderEngine(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IUnknown):
+    """ISmartRenderEngine Interface"""
+    _case_insensitive_ = True
+    _iid_ = GUID('{F03FA8CE-879A-4D59-9B2C-26BB1CF83461}')
+    _idlflags_ = []
+
+    if TYPE_CHECKING:  # commembers
+        def SetGroupCompressor(self, Group: hints.Incomplete, pCompressor: hints.Incomplete) -> hints.Hresult: ...
+        def GetGroupCompressor(self, Group: hints.Incomplete, pCompressor: hints.Incomplete) -> hints.Hresult: ...
+        def SetFindCompressorCB(self, pCallback: hints.Incomplete) -> hints.Hresult: ...
+
+
+class IFindCompressorCB(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IUnknown):
+    """IFindCompressorCB Interface"""
+    _case_insensitive_ = True
+    _iid_ = GUID('{F03FA8DE-879A-4D59-9B2C-26BB1CF83461}')
+    _idlflags_ = []
+
+    if TYPE_CHECKING:  # commembers
+        def GetCompressor(self, pType: hints.Incomplete, pCompType: hints.Incomplete) -> 'IBaseFilter': ...
+
+
+ISmartRenderEngine._methods_ = [
+    COMMETHOD(
+        [],
+        HRESULT,
+        'SetGroupCompressor',
+        ([], c_int, 'Group'),
+        ([], POINTER(IBaseFilter), 'pCompressor')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'GetGroupCompressor',
+        ([], c_int, 'Group'),
+        ([], POINTER(POINTER(IBaseFilter)), 'pCompressor')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'SetFindCompressorCB',
+        ([], POINTER(IFindCompressorCB), 'pCallback')
+    ),
+]
+
+################################################################
+# code template for ISmartRenderEngine implementation
+# class ISmartRenderEngine_Impl(object):
+#     def SetGroupCompressor(self, Group, pCompressor):
+#         '-no docstring-'
+#         #return 
+#
+#     def GetGroupCompressor(self, Group, pCompressor):
+#         '-no docstring-'
+#         #return 
+#
+#     def SetFindCompressorCB(self, pCallback):
+#         '-no docstring-'
+#         #return 
+#
 
 
 class IAMTimelineTrans(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IUnknown):
@@ -2918,8 +1822,6 @@ class IAMTimelineTrans(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.
         def GetCutsOnly(self, pVal: hints.Incomplete) -> hints.Hresult: ...
         def SetCutsOnly(self, pVal: hints.Incomplete) -> hints.Hresult: ...
 
-
-AMTimelineTrans._com_interfaces_ = [IAMTimelineTrans, IAMTimelineObj, IAMTimelineSplittable]
 
 IAMTimelineTrans._methods_ = [
     COMMETHOD(
@@ -3008,6 +1910,88 @@ IAMTimelineTrans._methods_ = [
 #         #return 
 #
 
+IFindCompressorCB._methods_ = [
+    COMMETHOD(
+        [],
+        HRESULT,
+        'GetCompressor',
+        ([], POINTER(_AMMediaType), 'pType'),
+        ([], POINTER(_AMMediaType), 'pCompType'),
+        (['out'], POINTER(POINTER(IBaseFilter)), 'ppFilter')
+    ),
+]
+
+################################################################
+# code template for IFindCompressorCB implementation
+# class IFindCompressorCB_Impl(object):
+#     def GetCompressor(self, pType, pCompType):
+#         '-no docstring-'
+#         #return ppFilter
+#
+
+
+class Xml2Dex(CoClass):
+    """Xml2Dex Class"""
+    _reg_clsid_ = GUID('{18C628EE-962A-11D2-8D08-00A0C9441E20}')
+    _idlflags_ = []
+    _typelib_path_ = typelib_path
+    _reg_typelib_ = ('{78530B68-61F9-11D2-8CAD-00A024580902}', 1, 0)
+
+
+class IXml2Dex(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IDispatch):
+    """IXml2Dex Interface"""
+    _case_insensitive_ = True
+    _iid_ = GUID('{18C628ED-962A-11D2-8D08-00A0C9441E20}')
+    _idlflags_ = []
+
+    if TYPE_CHECKING:  # commembers
+        def CreateGraphFromFile(self, pTimeline: hints.Incomplete, Filename: hints.Incomplete) -> hints.Incomplete: ...
+        def WriteGrfFile(self, pGraph: hints.Incomplete, Filename: hints.Incomplete) -> hints.Hresult: ...
+        def WriteXMLFile(self, pTimeline: hints.Incomplete, Filename: hints.Incomplete) -> hints.Hresult: ...
+        def ReadXMLFile(self, pTimeline: hints.Incomplete, XMLName: hints.Incomplete) -> hints.Hresult: ...
+        def Delete(self, pTimeline: hints.Incomplete, dStart: hints.Incomplete, dEnd: hints.Incomplete) -> hints.Hresult: ...
+        def WriteXMLPart(self, pTimeline: hints.Incomplete, dStart: hints.Incomplete, dEnd: hints.Incomplete, Filename: hints.Incomplete) -> hints.Hresult: ...
+        def PasteXMLFile(self, pTimeline: hints.Incomplete, dStart: hints.Incomplete, Filename: hints.Incomplete) -> hints.Hresult: ...
+        def CopyXML(self, pTimeline: hints.Incomplete, dStart: hints.Incomplete, dEnd: hints.Incomplete) -> hints.Hresult: ...
+        def PasteXML(self, pTimeline: hints.Incomplete, dStart: hints.Incomplete) -> hints.Hresult: ...
+        def Reset(self) -> hints.Hresult: ...
+        def ReadXML(self, pTimeline: hints.Incomplete, pxml: hints.Incomplete) -> hints.Hresult: ...
+        def WriteXML(self, pTimeline: hints.Incomplete, pbstrXML: hints.Incomplete) -> hints.Hresult: ...
+
+
+Xml2Dex._com_interfaces_ = [IXml2Dex]
+
+
+class MediaLocator(CoClass):
+    """MediaLocator Class"""
+    _reg_clsid_ = GUID('{CC1101F2-79DC-11D2-8CE6-00A0C9441E20}')
+    _idlflags_ = []
+    _typelib_path_ = typelib_path
+    _reg_typelib_ = ('{78530B68-61F9-11D2-8CAD-00A024580902}', 1, 0)
+
+
+MediaLocator._com_interfaces_ = [IMediaLocator]
+
+
+class AMTimelineTrans(CoClass):
+    _reg_clsid_ = GUID('{74D2EC81-6233-11D2-8CAD-00A024580902}')
+    _idlflags_ = []
+    _typelib_path_ = typelib_path
+    _reg_typelib_ = ('{78530B68-61F9-11D2-8CAD-00A024580902}', 1, 0)
+
+
+AMTimelineTrans._com_interfaces_ = [IAMTimelineTrans, IAMTimelineObj, IAMTimelineSplittable]
+
+
+class AMTimelineGroup(CoClass):
+    _reg_clsid_ = GUID('{F6D371E1-B8A6-11D2-8023-00C0DF10D434}')
+    _idlflags_ = []
+    _typelib_path_ = typelib_path
+    _reg_typelib_ = ('{78530B68-61F9-11D2-8CAD-00A024580902}', 1, 0)
+
+
+AMTimelineGroup._com_interfaces_ = [IAMTimelineGroup, IAMTimelineComp, IAMTimelineObj]
+
 IAMTimelineVirtualTrack._methods_ = [
     COMMETHOD(
         [helpstring('method TrackGetPriority')],
@@ -3031,68 +2015,6 @@ IAMTimelineVirtualTrack._methods_ = [
 #
 
 
-class MediaLocator(CoClass):
-    """MediaLocator Class"""
-    _reg_clsid_ = GUID('{CC1101F2-79DC-11D2-8CE6-00A0C9441E20}')
-    _idlflags_ = []
-    _typelib_path_ = typelib_path
-    _reg_typelib_ = ('{78530B68-61F9-11D2-8CAD-00A024580902}', 1, 0)
-
-
-MediaLocator._com_interfaces_ = [IMediaLocator]
-
-IEnumFilters._methods_ = [
-    COMMETHOD(
-        [],
-        HRESULT,
-        'Next',
-        (['in'], c_ulong, 'cFilters'),
-        (['out'], POINTER(POINTER(IBaseFilter)), 'ppFilter'),
-        (['out'], POINTER(c_ulong), 'pcFetched')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'Skip',
-        (['in'], c_ulong, 'cFilters')
-    ),
-    COMMETHOD([], HRESULT, 'Reset'),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'Clone',
-        (['out'], POINTER(POINTER(IEnumFilters)), 'ppEnum')
-    ),
-]
-
-################################################################
-# code template for IEnumFilters implementation
-# class IEnumFilters_Impl(object):
-#     def Next(self, cFilters):
-#         '-no docstring-'
-#         #return ppFilter, pcFetched
-#
-#     def Skip(self, cFilters):
-#         '-no docstring-'
-#         #return 
-#
-#     def Reset(self):
-#         '-no docstring-'
-#         #return 
-#
-#     def Clone(self):
-#         '-no docstring-'
-#         #return ppEnum
-#
-
-
-class AMTimelineEffect(CoClass):
-    _reg_clsid_ = GUID('{74D2EC82-6233-11D2-8CAD-00A024580902}')
-    _idlflags_ = []
-    _typelib_path_ = typelib_path
-    _reg_typelib_ = ('{78530B68-61F9-11D2-8CAD-00A024580902}', 1, 0)
-
-
 class IAMTimelineEffect(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IUnknown):
     """IAMTimelineEffect Interface"""
     _case_insensitive_ = True
@@ -3103,7 +2025,22 @@ class IAMTimelineEffect(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0
         def EffectGetPriority(self, pVal: hints.Incomplete) -> hints.Hresult: ...
 
 
-AMTimelineEffect._com_interfaces_ = [IAMTimelineEffect, IAMTimelineObj, IAMTimelineSplittable, IPropertyBag]
+IAMTimelineEffect._methods_ = [
+    COMMETHOD(
+        [helpstring('method EffectGetPriority')],
+        HRESULT,
+        'EffectGetPriority',
+        ([], POINTER(c_int), 'pVal')
+    ),
+]
+
+################################################################
+# code template for IAMTimelineEffect implementation
+# class IAMTimelineEffect_Impl(object):
+#     def EffectGetPriority(self, pVal):
+#         'method EffectGetPriority'
+#         #return 
+#
 
 
 class PropertySetter(CoClass):
@@ -3136,75 +2073,154 @@ class IPropertySetter(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.I
 
 PropertySetter._com_interfaces_ = [IPropertySetter, IAMSetErrorLog]
 
-IGrfCache._methods_ = [
+IXml2Dex._methods_ = [
     COMMETHOD(
-        [helpstring('method AddFilter')],
+        [helpstring('method CreateGraphFromFile')],
         HRESULT,
-        'AddFilter',
-        ([], POINTER(IGrfCache), 'ChainedCache'),
-        ([], c_longlong, 'Id'),
-        ([], POINTER(IBaseFilter), 'pFilter'),
-        ([], WSTRING, 'pName')
+        'CreateGraphFromFile',
+        (['out'], POINTER(POINTER(IUnknown)), 'ppGraph'),
+        ([], POINTER(IUnknown), 'pTimeline'),
+        ([], BSTR, 'Filename')
     ),
     COMMETHOD(
-        [helpstring('method ConnectPins')],
+        [helpstring('method WriteGrfFile')],
         HRESULT,
-        'ConnectPins',
-        ([], POINTER(IGrfCache), 'ChainedCache'),
-        ([], c_longlong, 'PinID1'),
-        ([], POINTER(IPin), 'pPin1'),
-        ([], c_longlong, 'PinID2'),
-        ([], POINTER(IPin), 'pPin2')
+        'WriteGrfFile',
+        ([], POINTER(IUnknown), 'pGraph'),
+        ([], BSTR, 'Filename')
     ),
     COMMETHOD(
-        [helpstring('method SetGraph')],
+        [helpstring('method WriteXMLFile')],
         HRESULT,
-        'SetGraph',
-        ([], POINTER(IGraphBuilder), 'pGraph')
+        'WriteXMLFile',
+        ([], POINTER(IUnknown), 'pTimeline'),
+        ([], BSTR, 'Filename')
     ),
     COMMETHOD(
-        [helpstring('method DoConnectionsNow')],
+        [helpstring('method ReadXMLFile')],
         HRESULT,
-        'DoConnectionsNow',
+        'ReadXMLFile',
+        ([], POINTER(IUnknown), 'pTimeline'),
+        ([], BSTR, 'XMLName')
+    ),
+    COMMETHOD(
+        [helpstring('method Delete')],
+        HRESULT,
+        'Delete',
+        ([], POINTER(IUnknown), 'pTimeline'),
+        ([], c_double, 'dStart'),
+        ([], c_double, 'dEnd')
+    ),
+    COMMETHOD(
+        [helpstring('method WriteXMLPart')],
+        HRESULT,
+        'WriteXMLPart',
+        ([], POINTER(IUnknown), 'pTimeline'),
+        ([], c_double, 'dStart'),
+        ([], c_double, 'dEnd'),
+        ([], BSTR, 'Filename')
+    ),
+    COMMETHOD(
+        [helpstring('method PasteXMLFile')],
+        HRESULT,
+        'PasteXMLFile',
+        ([], POINTER(IUnknown), 'pTimeline'),
+        ([], c_double, 'dStart'),
+        ([], BSTR, 'Filename')
+    ),
+    COMMETHOD(
+        [helpstring('method CopyXML')],
+        HRESULT,
+        'CopyXML',
+        ([], POINTER(IUnknown), 'pTimeline'),
+        ([], c_double, 'dStart'),
+        ([], c_double, 'dEnd')
+    ),
+    COMMETHOD(
+        [helpstring('method PasteXML')],
+        HRESULT,
+        'PasteXML',
+        ([], POINTER(IUnknown), 'pTimeline'),
+        ([], c_double, 'dStart')
+    ),
+    COMMETHOD([helpstring('method Reset')], HRESULT, 'Reset'),
+    COMMETHOD(
+        [helpstring('method ReadXML')],
+        HRESULT,
+        'ReadXML',
+        ([], POINTER(IUnknown), 'pTimeline'),
+        ([], POINTER(IUnknown), 'pxml')
+    ),
+    COMMETHOD(
+        [helpstring('method WriteXML')],
+        HRESULT,
+        'WriteXML',
+        ([], POINTER(IUnknown), 'pTimeline'),
+        ([], POINTER(BSTR), 'pbstrXML')
     ),
 ]
 
 ################################################################
-# code template for IGrfCache implementation
-# class IGrfCache_Impl(object):
-#     def AddFilter(self, ChainedCache, Id, pFilter, pName):
-#         'method AddFilter'
+# code template for IXml2Dex implementation
+# class IXml2Dex_Impl(object):
+#     def CreateGraphFromFile(self, pTimeline, Filename):
+#         'method CreateGraphFromFile'
+#         #return ppGraph
+#
+#     def WriteGrfFile(self, pGraph, Filename):
+#         'method WriteGrfFile'
 #         #return 
 #
-#     def ConnectPins(self, ChainedCache, PinID1, pPin1, PinID2, pPin2):
-#         'method ConnectPins'
+#     def WriteXMLFile(self, pTimeline, Filename):
+#         'method WriteXMLFile'
 #         #return 
 #
-#     def SetGraph(self, pGraph):
-#         'method SetGraph'
+#     def ReadXMLFile(self, pTimeline, XMLName):
+#         'method ReadXMLFile'
 #         #return 
 #
-#     def DoConnectionsNow(self):
-#         'method DoConnectionsNow'
+#     def Delete(self, pTimeline, dStart, dEnd):
+#         'method Delete'
+#         #return 
+#
+#     def WriteXMLPart(self, pTimeline, dStart, dEnd, Filename):
+#         'method WriteXMLPart'
+#         #return 
+#
+#     def PasteXMLFile(self, pTimeline, dStart, Filename):
+#         'method PasteXMLFile'
+#         #return 
+#
+#     def CopyXML(self, pTimeline, dStart, dEnd):
+#         'method CopyXML'
+#         #return 
+#
+#     def PasteXML(self, pTimeline, dStart):
+#         'method PasteXML'
+#         #return 
+#
+#     def Reset(self):
+#         'method Reset'
+#         #return 
+#
+#     def ReadXML(self, pTimeline, pxml):
+#         'method ReadXML'
+#         #return 
+#
+#     def WriteXML(self, pTimeline, pbstrXML):
+#         'method WriteXML'
 #         #return 
 #
 
-IAMTimelineEffect._methods_ = [
-    COMMETHOD(
-        [helpstring('method EffectGetPriority')],
-        HRESULT,
-        'EffectGetPriority',
-        ([], POINTER(c_int), 'pVal')
-    ),
-]
 
-################################################################
-# code template for IAMTimelineEffect implementation
-# class IAMTimelineEffect_Impl(object):
-#     def EffectGetPriority(self, pVal):
-#         'method EffectGetPriority'
-#         #return 
-#
+class AMTimelineEffect(CoClass):
+    _reg_clsid_ = GUID('{74D2EC82-6233-11D2-8CAD-00A024580902}')
+    _idlflags_ = []
+    _typelib_path_ = typelib_path
+    _reg_typelib_ = ('{78530B68-61F9-11D2-8CAD-00A024580902}', 1, 0)
+
+
+AMTimelineEffect._com_interfaces_ = [IAMTimelineEffect, IAMTimelineObj, IAMTimelineSplittable, IPropertyBag]
 
 IAMTimelineComp._methods_ = [
     COMMETHOD(
@@ -3302,16 +2318,6 @@ IAMTimelineComp._methods_ = [
 #         '-no docstring-'
 #         #return ppNextVirtualTrack
 #
-
-
-class AMTimelineGroup(CoClass):
-    _reg_clsid_ = GUID('{F6D371E1-B8A6-11D2-8023-00C0DF10D434}')
-    _idlflags_ = []
-    _typelib_path_ = typelib_path
-    _reg_typelib_ = ('{78530B68-61F9-11D2-8CAD-00A024580902}', 1, 0)
-
-
-AMTimelineGroup._com_interfaces_ = [IAMTimelineGroup, IAMTimelineComp, IAMTimelineObj]
 
 IAMTimeline._methods_ = [
     COMMETHOD(
@@ -3631,33 +2637,323 @@ IAMTimeline._methods_ = [
 #
 
 
-class IRenderEngine2(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IUnknown):
-    """IRenderEngine2 Interface"""
+class ISampleGrabber(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IUnknown):
+    """ISampleGrabber Interface"""
     _case_insensitive_ = True
-    _iid_ = GUID('{6BEE3A82-66C9-11D2-918F-00C0DF10D434}')
+    _iid_ = GUID('{6B652FFF-11FE-4FCE-92AD-0266B5D7C78F}')
     _idlflags_ = []
 
     if TYPE_CHECKING:  # commembers
-        def SetResizerGUID(self, ResizerGuid: hints.Incomplete) -> hints.Hresult: ...
+        def SetOneShot(self, OneShot: hints.Incomplete) -> hints.Hresult: ...
+        def SetMediaType(self, pType: hints.Incomplete) -> hints.Hresult: ...
+        def GetConnectedMediaType(self, pType: hints.Incomplete) -> hints.Hresult: ...
+        def SetBufferSamples(self, BufferThem: hints.Incomplete) -> hints.Hresult: ...
+        def GetCurrentBuffer(self, pBufferSize: hints.Incomplete) -> hints.Tuple[hints.Incomplete, hints.Incomplete]: ...
+        def GetCurrentSample(self) -> 'IMediaSample': ...
+        def SetCallback(self, pCallback: hints.Incomplete, WhichMethodToCallback: hints.Incomplete) -> hints.Hresult: ...
 
 
-IRenderEngine2._methods_ = [
+IMediaDet._methods_ = [
     COMMETHOD(
-        [],
+        ['propget', helpstring('property Filter')],
         HRESULT,
-        'SetResizerGUID',
+        'Filter',
+        (['out', 'retval'], POINTER(POINTER(IUnknown)), 'pVal')
+    ),
+    COMMETHOD(
+        ['propput', helpstring('property Filter')],
+        HRESULT,
+        'Filter',
+        (['in'], POINTER(IUnknown), 'pVal')
+    ),
+    COMMETHOD(
+        ['propget', helpstring('property OutputStreams')],
+        HRESULT,
+        'OutputStreams',
+        (['out', 'retval'], POINTER(c_int), 'pVal')
+    ),
+    COMMETHOD(
+        ['propget', helpstring('property CurrentStream')],
+        HRESULT,
+        'CurrentStream',
+        (['out', 'retval'], POINTER(c_int), 'pVal')
+    ),
+    COMMETHOD(
+        ['propput', helpstring('property CurrentStream')],
+        HRESULT,
+        'CurrentStream',
+        (['in'], c_int, 'pVal')
+    ),
+    COMMETHOD(
+        ['propget', helpstring('property StreamType')],
+        HRESULT,
+        'StreamType',
         (
-            [],
-            comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.GUID,
-            'ResizerGuid',
+            ['out', 'retval'],
+            POINTER(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.GUID),
+            'pVal',
         )
+    ),
+    COMMETHOD(
+        ['propget', helpstring('property StreamTypeB')],
+        HRESULT,
+        'StreamTypeB',
+        (['out', 'retval'], POINTER(BSTR), 'pVal')
+    ),
+    COMMETHOD(
+        ['propget', helpstring('property StreamLength')],
+        HRESULT,
+        'StreamLength',
+        (['out', 'retval'], POINTER(c_double), 'pVal')
+    ),
+    COMMETHOD(
+        ['propget', helpstring('property Filename')],
+        HRESULT,
+        'Filename',
+        (['out', 'retval'], POINTER(BSTR), 'pVal')
+    ),
+    COMMETHOD(
+        ['propput', helpstring('property Filename')],
+        HRESULT,
+        'Filename',
+        (['in'], BSTR, 'pVal')
+    ),
+    COMMETHOD(
+        [helpstring('method GetBitmapBits')],
+        HRESULT,
+        'GetBitmapBits',
+        ([], c_double, 'streamTime'),
+        ([], POINTER(c_int), 'pBufferSize'),
+        ([], POINTER(c_ubyte), 'pBuffer'),
+        ([], c_int, 'Width'),
+        ([], c_int, 'Height')
+    ),
+    COMMETHOD(
+        [helpstring('method WriteBitmapBits')],
+        HRESULT,
+        'WriteBitmapBits',
+        ([], c_double, 'streamTime'),
+        ([], c_int, 'Width'),
+        ([], c_int, 'Height'),
+        ([], BSTR, 'Filename')
+    ),
+    COMMETHOD(
+        ['propget', helpstring('property StreamMediaType')],
+        HRESULT,
+        'StreamMediaType',
+        (['out', 'retval'], POINTER(_AMMediaType), 'pVal')
+    ),
+    COMMETHOD(
+        [helpstring('method GetSampleGrabber')],
+        HRESULT,
+        'GetSampleGrabber',
+        (['out'], POINTER(POINTER(ISampleGrabber)), 'ppVal')
+    ),
+    COMMETHOD(
+        ['propget', helpstring('property FrameRate')],
+        HRESULT,
+        'FrameRate',
+        (['out', 'retval'], POINTER(c_double), 'pVal')
+    ),
+    COMMETHOD(
+        [helpstring('method EnterBitmapGrabMode')],
+        HRESULT,
+        'EnterBitmapGrabMode',
+        ([], c_double, 'SeekTime')
     ),
 ]
 
 ################################################################
-# code template for IRenderEngine2 implementation
-# class IRenderEngine2_Impl(object):
-#     def SetResizerGUID(self, ResizerGuid):
+# code template for IMediaDet implementation
+# class IMediaDet_Impl(object):
+#     def _get(self):
+#         'property Filter'
+#         #return pVal
+#     def _set(self, pVal):
+#         'property Filter'
+#     Filter = property(_get, _set, doc = _set.__doc__)
+#
+#     @property
+#     def OutputStreams(self):
+#         'property OutputStreams'
+#         #return pVal
+#
+#     def _get(self):
+#         'property CurrentStream'
+#         #return pVal
+#     def _set(self, pVal):
+#         'property CurrentStream'
+#     CurrentStream = property(_get, _set, doc = _set.__doc__)
+#
+#     @property
+#     def StreamType(self):
+#         'property StreamType'
+#         #return pVal
+#
+#     @property
+#     def StreamTypeB(self):
+#         'property StreamTypeB'
+#         #return pVal
+#
+#     @property
+#     def StreamLength(self):
+#         'property StreamLength'
+#         #return pVal
+#
+#     def _get(self):
+#         'property Filename'
+#         #return pVal
+#     def _set(self, pVal):
+#         'property Filename'
+#     Filename = property(_get, _set, doc = _set.__doc__)
+#
+#     def GetBitmapBits(self, streamTime, pBufferSize, pBuffer, Width, Height):
+#         'method GetBitmapBits'
+#         #return 
+#
+#     def WriteBitmapBits(self, streamTime, Width, Height, Filename):
+#         'method WriteBitmapBits'
+#         #return 
+#
+#     @property
+#     def StreamMediaType(self):
+#         'property StreamMediaType'
+#         #return pVal
+#
+#     def GetSampleGrabber(self):
+#         'method GetSampleGrabber'
+#         #return ppVal
+#
+#     @property
+#     def FrameRate(self):
+#         'property FrameRate'
+#         #return pVal
+#
+#     def EnterBitmapGrabMode(self, SeekTime):
+#         'method EnterBitmapGrabMode'
+#         #return 
+#
+
+_PinInfo._fields_ = [
+    ('pFilter', POINTER(IBaseFilter)),
+    ('dir', _PinDirection),
+    ('achName', c_ushort * 128),
+]
+
+assert sizeof(_PinInfo) == 272, sizeof(_PinInfo)
+assert alignment(_PinInfo) == 8, alignment(_PinInfo)
+
+
+class IMediaSample(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IUnknown):
+    _case_insensitive_ = True
+    _iid_ = GUID('{56A8689A-0AD4-11CE-B03A-0020AF0BA770}')
+    _idlflags_ = []
+
+    if TYPE_CHECKING:  # commembers
+        def GetPointer(self) -> hints.Incomplete: ...
+        def GetSize(self) -> hints.Hresult: ...
+        def GetTime(self) -> hints.Tuple[hints.Incomplete, hints.Incomplete]: ...
+        def SetTime(self, pTimeStart: hints.Incomplete, pTimeEnd: hints.Incomplete) -> hints.Hresult: ...
+        def IsSyncPoint(self) -> hints.Hresult: ...
+        def SetSyncPoint(self, bIsSyncPoint: hints.Incomplete) -> hints.Hresult: ...
+        def IsPreroll(self) -> hints.Hresult: ...
+        def SetPreroll(self, bIsPreroll: hints.Incomplete) -> hints.Hresult: ...
+        def GetActualDataLength(self) -> hints.Hresult: ...
+        def SetActualDataLength(self, __MIDL__IMediaSample0000: hints.Incomplete) -> hints.Hresult: ...
+        def GetMediaType(self) -> hints.Incomplete: ...
+        def SetMediaType(self, pMediaType: hints.Incomplete) -> hints.Hresult: ...
+        def IsDiscontinuity(self) -> hints.Hresult: ...
+        def SetDiscontinuity(self, bDiscontinuity: hints.Incomplete) -> hints.Hresult: ...
+        def GetMediaTime(self) -> hints.Tuple[hints.Incomplete, hints.Incomplete]: ...
+        def SetMediaTime(self, pTimeStart: hints.Incomplete, pTimeEnd: hints.Incomplete) -> hints.Hresult: ...
+
+
+class ISampleGrabberCB(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IUnknown):
+    """ISampleGrabberCB Interface"""
+    _case_insensitive_ = True
+    _iid_ = GUID('{0579154A-2B53-4994-B0D0-E773148EFF85}')
+    _idlflags_ = []
+
+    if TYPE_CHECKING:  # commembers
+        def SampleCB(self, SampleTime: hints.Incomplete, pSample: hints.Incomplete) -> hints.Hresult: ...
+        def BufferCB(self, SampleTime: hints.Incomplete, pBuffer: hints.Incomplete, BufferLen: hints.Incomplete) -> hints.Hresult: ...
+
+
+ISampleGrabber._methods_ = [
+    COMMETHOD(
+        [],
+        HRESULT,
+        'SetOneShot',
+        ([], c_int, 'OneShot')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'SetMediaType',
+        ([], POINTER(_AMMediaType), 'pType')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'GetConnectedMediaType',
+        ([], POINTER(_AMMediaType), 'pType')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'SetBufferSamples',
+        ([], c_int, 'BufferThem')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'GetCurrentBuffer',
+        (['in', 'out'], POINTER(c_int), 'pBufferSize'),
+        (['out'], POINTER(c_int), 'pBuffer')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'GetCurrentSample',
+        (['out', 'retval'], POINTER(POINTER(IMediaSample)), 'ppSample')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'SetCallback',
+        ([], POINTER(ISampleGrabberCB), 'pCallback'),
+        ([], c_int, 'WhichMethodToCallback')
+    ),
+]
+
+################################################################
+# code template for ISampleGrabber implementation
+# class ISampleGrabber_Impl(object):
+#     def SetOneShot(self, OneShot):
+#         '-no docstring-'
+#         #return 
+#
+#     def SetMediaType(self, pType):
+#         '-no docstring-'
+#         #return 
+#
+#     def GetConnectedMediaType(self, pType):
+#         '-no docstring-'
+#         #return 
+#
+#     def SetBufferSamples(self, BufferThem):
+#         '-no docstring-'
+#         #return 
+#
+#     def GetCurrentBuffer(self):
+#         '-no docstring-'
+#         #return pBufferSize, pBuffer
+#
+#     def GetCurrentSample(self):
+#         '-no docstring-'
+#         #return ppSample
+#
+#     def SetCallback(self, pCallback, WhichMethodToCallback):
 #         '-no docstring-'
 #         #return 
 #
@@ -3669,6 +2965,25 @@ class DxtCompositor(CoClass):
     _idlflags_ = []
     _typelib_path_ = typelib_path
     _reg_typelib_ = ('{78530B68-61F9-11D2-8CAD-00A024580902}', 1, 0)
+
+
+class IDXEffect(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IDispatch):
+    """IDXEffect Interface"""
+    _case_insensitive_ = True
+    _iid_ = GUID('{E31FB81B-1335-11D1-8189-0000F87557DB}')
+    _idlflags_ = ['dual', 'oleautomation']
+
+    if TYPE_CHECKING:  # commembers
+        def _get_Capabilities(self) -> hints.Incomplete: ...
+        Capabilities = hints.normal_property(_get_Capabilities)
+        def _get_Progress(self) -> hints.Incomplete: ...
+        def _set_Progress(self, pVal: hints.Incomplete) -> hints.Hresult: ...
+        Progress = hints.normal_property(_get_Progress, _set_Progress)
+        def _get_StepResolution(self) -> hints.Incomplete: ...
+        StepResolution = hints.normal_property(_get_StepResolution)
+        def _get_Duration(self) -> hints.Incomplete: ...
+        def _set_Duration(self, pVal: hints.Incomplete) -> hints.Hresult: ...
+        Duration = hints.normal_property(_get_Duration, _set_Duration)
 
 
 class IDxtCompositor(IDXEffect):
@@ -3706,94 +3021,150 @@ class IDxtCompositor(IDXEffect):
 
 DxtCompositor._com_interfaces_ = [IDxtCompositor]
 
-_PinInfo._fields_ = [
-    ('pFilter', POINTER(IBaseFilter)),
-    ('dir', _PinDirection),
-    ('achName', c_ushort * 128),
-]
-
-assert sizeof(_PinInfo) == 272, sizeof(_PinInfo)
-assert alignment(_PinInfo) == 8, alignment(_PinInfo)
-
-
-class ISmartRenderEngine(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IUnknown):
-    """ISmartRenderEngine Interface"""
-    _case_insensitive_ = True
-    _iid_ = GUID('{F03FA8CE-879A-4D59-9B2C-26BB1CF83461}')
-    _idlflags_ = []
-
-    if TYPE_CHECKING:  # commembers
-        def SetGroupCompressor(self, Group: hints.Incomplete, pCompressor: hints.Incomplete) -> hints.Hresult: ...
-        def GetGroupCompressor(self, Group: hints.Incomplete, pCompressor: hints.Incomplete) -> hints.Hresult: ...
-        def SetFindCompressorCB(self, pCallback: hints.Incomplete) -> hints.Hresult: ...
-
-
-class IFindCompressorCB(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IUnknown):
-    """IFindCompressorCB Interface"""
-    _case_insensitive_ = True
-    _iid_ = GUID('{F03FA8DE-879A-4D59-9B2C-26BB1CF83461}')
-    _idlflags_ = []
-
-    if TYPE_CHECKING:  # commembers
-        def GetCompressor(self, pType: hints.Incomplete, pCompType: hints.Incomplete) -> 'IBaseFilter': ...
-
-
-ISmartRenderEngine._methods_ = [
+IMediaSample._methods_ = [
     COMMETHOD(
         [],
         HRESULT,
-        'SetGroupCompressor',
-        ([], c_int, 'Group'),
-        ([], POINTER(IBaseFilter), 'pCompressor')
+        'GetPointer',
+        (['out'], POINTER(POINTER(c_ubyte)), 'ppBuffer')
+    ),
+    COMMETHOD([], c_int, 'GetSize'),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'GetTime',
+        (['out'], POINTER(c_longlong), 'pTimeStart'),
+        (['out'], POINTER(c_longlong), 'pTimeEnd')
     ),
     COMMETHOD(
         [],
         HRESULT,
-        'GetGroupCompressor',
-        ([], c_int, 'Group'),
-        ([], POINTER(POINTER(IBaseFilter)), 'pCompressor')
+        'SetTime',
+        (['in'], POINTER(c_longlong), 'pTimeStart'),
+        (['in'], POINTER(c_longlong), 'pTimeEnd')
+    ),
+    COMMETHOD([], HRESULT, 'IsSyncPoint'),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'SetSyncPoint',
+        ([], c_int, 'bIsSyncPoint')
+    ),
+    COMMETHOD([], HRESULT, 'IsPreroll'),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'SetPreroll',
+        ([], c_int, 'bIsPreroll')
+    ),
+    COMMETHOD([], c_int, 'GetActualDataLength'),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'SetActualDataLength',
+        ([], c_int, '__MIDL__IMediaSample0000')
     ),
     COMMETHOD(
         [],
         HRESULT,
-        'SetFindCompressorCB',
-        ([], POINTER(IFindCompressorCB), 'pCallback')
+        'GetMediaType',
+        (['out'], POINTER(POINTER(_AMMediaType)), 'ppMediaType')
     ),
-]
-
-################################################################
-# code template for ISmartRenderEngine implementation
-# class ISmartRenderEngine_Impl(object):
-#     def SetGroupCompressor(self, Group, pCompressor):
-#         '-no docstring-'
-#         #return 
-#
-#     def GetGroupCompressor(self, Group, pCompressor):
-#         '-no docstring-'
-#         #return 
-#
-#     def SetFindCompressorCB(self, pCallback):
-#         '-no docstring-'
-#         #return 
-#
-
-IFindCompressorCB._methods_ = [
     COMMETHOD(
         [],
         HRESULT,
-        'GetCompressor',
-        ([], POINTER(_AMMediaType), 'pType'),
-        ([], POINTER(_AMMediaType), 'pCompType'),
-        (['out'], POINTER(POINTER(IBaseFilter)), 'ppFilter')
+        'SetMediaType',
+        (['in'], POINTER(_AMMediaType), 'pMediaType')
+    ),
+    COMMETHOD([], HRESULT, 'IsDiscontinuity'),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'SetDiscontinuity',
+        ([], c_int, 'bDiscontinuity')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'GetMediaTime',
+        (['out'], POINTER(c_longlong), 'pTimeStart'),
+        (['out'], POINTER(c_longlong), 'pTimeEnd')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'SetMediaTime',
+        (['in'], POINTER(c_longlong), 'pTimeStart'),
+        (['in'], POINTER(c_longlong), 'pTimeEnd')
     ),
 ]
 
 ################################################################
-# code template for IFindCompressorCB implementation
-# class IFindCompressorCB_Impl(object):
-#     def GetCompressor(self, pType, pCompType):
+# code template for IMediaSample implementation
+# class IMediaSample_Impl(object):
+#     def GetPointer(self):
 #         '-no docstring-'
-#         #return ppFilter
+#         #return ppBuffer
+#
+#     def GetSize(self):
+#         '-no docstring-'
+#         #return 
+#
+#     def GetTime(self):
+#         '-no docstring-'
+#         #return pTimeStart, pTimeEnd
+#
+#     def SetTime(self, pTimeStart, pTimeEnd):
+#         '-no docstring-'
+#         #return 
+#
+#     def IsSyncPoint(self):
+#         '-no docstring-'
+#         #return 
+#
+#     def SetSyncPoint(self, bIsSyncPoint):
+#         '-no docstring-'
+#         #return 
+#
+#     def IsPreroll(self):
+#         '-no docstring-'
+#         #return 
+#
+#     def SetPreroll(self, bIsPreroll):
+#         '-no docstring-'
+#         #return 
+#
+#     def GetActualDataLength(self):
+#         '-no docstring-'
+#         #return 
+#
+#     def SetActualDataLength(self, __MIDL__IMediaSample0000):
+#         '-no docstring-'
+#         #return 
+#
+#     def GetMediaType(self):
+#         '-no docstring-'
+#         #return ppMediaType
+#
+#     def SetMediaType(self, pMediaType):
+#         '-no docstring-'
+#         #return 
+#
+#     def IsDiscontinuity(self):
+#         '-no docstring-'
+#         #return 
+#
+#     def SetDiscontinuity(self, bDiscontinuity):
+#         '-no docstring-'
+#         #return 
+#
+#     def GetMediaTime(self):
+#         '-no docstring-'
+#         #return pTimeStart, pTimeEnd
+#
+#     def SetMediaTime(self, pTimeStart, pTimeEnd):
+#         '-no docstring-'
+#         #return 
 #
 
 
@@ -3805,7 +3176,194 @@ class DxtAlphaSetter(CoClass):
     _reg_typelib_ = ('{78530B68-61F9-11D2-8CAD-00A024580902}', 1, 0)
 
 
+class IDxtAlphaSetter(IDXEffect):
+    """IDxtAlphaSetter Interface"""
+    _case_insensitive_ = True
+    _iid_ = GUID('{4EE9EAD9-DA4D-43D0-9383-06B90C08B12B}')
+    _idlflags_ = ['dual', 'oleautomation']
+
+    if TYPE_CHECKING:  # commembers
+        def _get_Alpha(self) -> hints.Incomplete: ...
+        def _set_Alpha(self, pVal: hints.Incomplete) -> hints.Hresult: ...
+        Alpha = hints.normal_property(_get_Alpha, _set_Alpha)
+        def _get_AlphaRamp(self) -> hints.Incomplete: ...
+        def _set_AlphaRamp(self, pVal: hints.Incomplete) -> hints.Hresult: ...
+        AlphaRamp = hints.normal_property(_get_AlphaRamp, _set_AlphaRamp)
+
+
 DxtAlphaSetter._com_interfaces_ = [IDxtAlphaSetter]
+
+
+class __MIDL___MIDL_itf_qedit_0000_0000_0002(Structure):
+    pass
+
+
+DEXTER_PARAM = __MIDL___MIDL_itf_qedit_0000_0000_0002
+
+
+class __MIDL___MIDL_itf_qedit_0000_0000_0003(Structure):
+    pass
+
+
+DEXTER_VALUE = __MIDL___MIDL_itf_qedit_0000_0000_0003
+
+IPropertySetter._methods_ = [
+    COMMETHOD(
+        [],
+        HRESULT,
+        'LoadXML',
+        (['in'], POINTER(IUnknown), 'pxml')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'PrintXML',
+        (['out'], POINTER(c_ubyte), 'pszXML'),
+        (['in'], c_int, 'cbXML'),
+        (['out'], POINTER(c_int), 'pcbPrinted'),
+        (['in'], c_int, 'indent')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'CloneProps',
+        (['out'], POINTER(POINTER(IPropertySetter)), 'ppSetter'),
+        (['in'], c_longlong, 'rtStart'),
+        (['in'], c_longlong, 'rtStop')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'AddProp',
+        (['in'], DEXTER_PARAM, 'Param'),
+        (['in'], POINTER(DEXTER_VALUE), 'paValue')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'GetProps',
+        (['out'], POINTER(c_int), 'pcParams'),
+        (['out'], POINTER(POINTER(DEXTER_PARAM)), 'paParam'),
+        (['out'], POINTER(POINTER(DEXTER_VALUE)), 'paValue')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'FreeProps',
+        (['in'], c_int, 'cParams'),
+        (['in'], POINTER(DEXTER_PARAM), 'paParam'),
+        (['in'], POINTER(DEXTER_VALUE), 'paValue')
+    ),
+    COMMETHOD([], HRESULT, 'ClearProps'),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'SaveToBlob',
+        (['out'], POINTER(c_int), 'pcSize'),
+        (['out'], POINTER(POINTER(c_ubyte)), 'ppb')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'LoadFromBlob',
+        (['in'], c_int, 'cSize'),
+        (['in'], POINTER(c_ubyte), 'pb')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'SetProps',
+        (['in'], POINTER(IUnknown), 'pTarget'),
+        (['in'], c_longlong, 'rtNow')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'PrintXMLW',
+        (['out'], POINTER(c_ushort), 'pszXML'),
+        (['in'], c_int, 'cchXML'),
+        (['out'], POINTER(c_int), 'pcchPrinted'),
+        (['in'], c_int, 'indent')
+    ),
+]
+
+################################################################
+# code template for IPropertySetter implementation
+# class IPropertySetter_Impl(object):
+#     def LoadXML(self, pxml):
+#         '-no docstring-'
+#         #return 
+#
+#     def PrintXML(self, cbXML, indent):
+#         '-no docstring-'
+#         #return pszXML, pcbPrinted
+#
+#     def CloneProps(self, rtStart, rtStop):
+#         '-no docstring-'
+#         #return ppSetter
+#
+#     def AddProp(self, Param, paValue):
+#         '-no docstring-'
+#         #return 
+#
+#     def GetProps(self):
+#         '-no docstring-'
+#         #return pcParams, paParam, paValue
+#
+#     def FreeProps(self, cParams, paParam, paValue):
+#         '-no docstring-'
+#         #return 
+#
+#     def ClearProps(self):
+#         '-no docstring-'
+#         #return 
+#
+#     def SaveToBlob(self):
+#         '-no docstring-'
+#         #return pcSize, ppb
+#
+#     def LoadFromBlob(self, cSize, pb):
+#         '-no docstring-'
+#         #return 
+#
+#     def SetProps(self, pTarget, rtNow):
+#         '-no docstring-'
+#         #return 
+#
+#     def PrintXMLW(self, cchXML, indent):
+#         '-no docstring-'
+#         #return pszXML, pcchPrinted
+#
+
+ISampleGrabberCB._methods_ = [
+    COMMETHOD(
+        [],
+        HRESULT,
+        'SampleCB',
+        ([], c_double, 'SampleTime'),
+        ([], POINTER(IMediaSample), 'pSample')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'BufferCB',
+        ([], c_double, 'SampleTime'),
+        ([], POINTER(c_ubyte), 'pBuffer'),
+        ([], c_int, 'BufferLen')
+    ),
+]
+
+################################################################
+# code template for ISampleGrabberCB implementation
+# class ISampleGrabberCB_Impl(object):
+#     def SampleCB(self, SampleTime, pSample):
+#         '-no docstring-'
+#         #return 
+#
+#     def BufferCB(self, SampleTime, pBuffer, BufferLen):
+#         '-no docstring-'
+#         #return 
+#
 
 IAMTimelineObj._methods_ = [
     COMMETHOD(
@@ -4200,287 +3758,6 @@ IAMTimelineObj._methods_ = [
 #
 
 
-class __MIDL___MIDL_itf_qedit_0000_0000_0002(Structure):
-    pass
-
-
-DEXTER_PARAM = __MIDL___MIDL_itf_qedit_0000_0000_0002
-
-
-class __MIDL___MIDL_itf_qedit_0000_0000_0003(Structure):
-    pass
-
-
-DEXTER_VALUE = __MIDL___MIDL_itf_qedit_0000_0000_0003
-
-IPropertySetter._methods_ = [
-    COMMETHOD(
-        [],
-        HRESULT,
-        'LoadXML',
-        (['in'], POINTER(IUnknown), 'pxml')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'PrintXML',
-        (['out'], POINTER(c_ubyte), 'pszXML'),
-        (['in'], c_int, 'cbXML'),
-        (['out'], POINTER(c_int), 'pcbPrinted'),
-        (['in'], c_int, 'indent')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'CloneProps',
-        (['out'], POINTER(POINTER(IPropertySetter)), 'ppSetter'),
-        (['in'], c_longlong, 'rtStart'),
-        (['in'], c_longlong, 'rtStop')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'AddProp',
-        (['in'], DEXTER_PARAM, 'Param'),
-        (['in'], POINTER(DEXTER_VALUE), 'paValue')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'GetProps',
-        (['out'], POINTER(c_int), 'pcParams'),
-        (['out'], POINTER(POINTER(DEXTER_PARAM)), 'paParam'),
-        (['out'], POINTER(POINTER(DEXTER_VALUE)), 'paValue')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'FreeProps',
-        (['in'], c_int, 'cParams'),
-        (['in'], POINTER(DEXTER_PARAM), 'paParam'),
-        (['in'], POINTER(DEXTER_VALUE), 'paValue')
-    ),
-    COMMETHOD([], HRESULT, 'ClearProps'),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'SaveToBlob',
-        (['out'], POINTER(c_int), 'pcSize'),
-        (['out'], POINTER(POINTER(c_ubyte)), 'ppb')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'LoadFromBlob',
-        (['in'], c_int, 'cSize'),
-        (['in'], POINTER(c_ubyte), 'pb')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'SetProps',
-        (['in'], POINTER(IUnknown), 'pTarget'),
-        (['in'], c_longlong, 'rtNow')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'PrintXMLW',
-        (['out'], POINTER(c_ushort), 'pszXML'),
-        (['in'], c_int, 'cchXML'),
-        (['out'], POINTER(c_int), 'pcchPrinted'),
-        (['in'], c_int, 'indent')
-    ),
-]
-
-################################################################
-# code template for IPropertySetter implementation
-# class IPropertySetter_Impl(object):
-#     def LoadXML(self, pxml):
-#         '-no docstring-'
-#         #return 
-#
-#     def PrintXML(self, cbXML, indent):
-#         '-no docstring-'
-#         #return pszXML, pcbPrinted
-#
-#     def CloneProps(self, rtStart, rtStop):
-#         '-no docstring-'
-#         #return ppSetter
-#
-#     def AddProp(self, Param, paValue):
-#         '-no docstring-'
-#         #return 
-#
-#     def GetProps(self):
-#         '-no docstring-'
-#         #return pcParams, paParam, paValue
-#
-#     def FreeProps(self, cParams, paParam, paValue):
-#         '-no docstring-'
-#         #return 
-#
-#     def ClearProps(self):
-#         '-no docstring-'
-#         #return 
-#
-#     def SaveToBlob(self):
-#         '-no docstring-'
-#         #return pcSize, ppb
-#
-#     def LoadFromBlob(self, cSize, pb):
-#         '-no docstring-'
-#         #return 
-#
-#     def SetProps(self, pTarget, rtNow):
-#         '-no docstring-'
-#         #return 
-#
-#     def PrintXMLW(self, cchXML, indent):
-#         '-no docstring-'
-#         #return pszXML, pcchPrinted
-#
-
-IXml2Dex._methods_ = [
-    COMMETHOD(
-        [helpstring('method CreateGraphFromFile')],
-        HRESULT,
-        'CreateGraphFromFile',
-        (['out'], POINTER(POINTER(IUnknown)), 'ppGraph'),
-        ([], POINTER(IUnknown), 'pTimeline'),
-        ([], BSTR, 'Filename')
-    ),
-    COMMETHOD(
-        [helpstring('method WriteGrfFile')],
-        HRESULT,
-        'WriteGrfFile',
-        ([], POINTER(IUnknown), 'pGraph'),
-        ([], BSTR, 'Filename')
-    ),
-    COMMETHOD(
-        [helpstring('method WriteXMLFile')],
-        HRESULT,
-        'WriteXMLFile',
-        ([], POINTER(IUnknown), 'pTimeline'),
-        ([], BSTR, 'Filename')
-    ),
-    COMMETHOD(
-        [helpstring('method ReadXMLFile')],
-        HRESULT,
-        'ReadXMLFile',
-        ([], POINTER(IUnknown), 'pTimeline'),
-        ([], BSTR, 'XMLName')
-    ),
-    COMMETHOD(
-        [helpstring('method Delete')],
-        HRESULT,
-        'Delete',
-        ([], POINTER(IUnknown), 'pTimeline'),
-        ([], c_double, 'dStart'),
-        ([], c_double, 'dEnd')
-    ),
-    COMMETHOD(
-        [helpstring('method WriteXMLPart')],
-        HRESULT,
-        'WriteXMLPart',
-        ([], POINTER(IUnknown), 'pTimeline'),
-        ([], c_double, 'dStart'),
-        ([], c_double, 'dEnd'),
-        ([], BSTR, 'Filename')
-    ),
-    COMMETHOD(
-        [helpstring('method PasteXMLFile')],
-        HRESULT,
-        'PasteXMLFile',
-        ([], POINTER(IUnknown), 'pTimeline'),
-        ([], c_double, 'dStart'),
-        ([], BSTR, 'Filename')
-    ),
-    COMMETHOD(
-        [helpstring('method CopyXML')],
-        HRESULT,
-        'CopyXML',
-        ([], POINTER(IUnknown), 'pTimeline'),
-        ([], c_double, 'dStart'),
-        ([], c_double, 'dEnd')
-    ),
-    COMMETHOD(
-        [helpstring('method PasteXML')],
-        HRESULT,
-        'PasteXML',
-        ([], POINTER(IUnknown), 'pTimeline'),
-        ([], c_double, 'dStart')
-    ),
-    COMMETHOD([helpstring('method Reset')], HRESULT, 'Reset'),
-    COMMETHOD(
-        [helpstring('method ReadXML')],
-        HRESULT,
-        'ReadXML',
-        ([], POINTER(IUnknown), 'pTimeline'),
-        ([], POINTER(IUnknown), 'pxml')
-    ),
-    COMMETHOD(
-        [helpstring('method WriteXML')],
-        HRESULT,
-        'WriteXML',
-        ([], POINTER(IUnknown), 'pTimeline'),
-        ([], POINTER(BSTR), 'pbstrXML')
-    ),
-]
-
-################################################################
-# code template for IXml2Dex implementation
-# class IXml2Dex_Impl(object):
-#     def CreateGraphFromFile(self, pTimeline, Filename):
-#         'method CreateGraphFromFile'
-#         #return ppGraph
-#
-#     def WriteGrfFile(self, pGraph, Filename):
-#         'method WriteGrfFile'
-#         #return 
-#
-#     def WriteXMLFile(self, pTimeline, Filename):
-#         'method WriteXMLFile'
-#         #return 
-#
-#     def ReadXMLFile(self, pTimeline, XMLName):
-#         'method ReadXMLFile'
-#         #return 
-#
-#     def Delete(self, pTimeline, dStart, dEnd):
-#         'method Delete'
-#         #return 
-#
-#     def WriteXMLPart(self, pTimeline, dStart, dEnd, Filename):
-#         'method WriteXMLPart'
-#         #return 
-#
-#     def PasteXMLFile(self, pTimeline, dStart, Filename):
-#         'method PasteXMLFile'
-#         #return 
-#
-#     def CopyXML(self, pTimeline, dStart, dEnd):
-#         'method CopyXML'
-#         #return 
-#
-#     def PasteXML(self, pTimeline, dStart):
-#         'method PasteXML'
-#         #return 
-#
-#     def Reset(self):
-#         'method Reset'
-#         #return 
-#
-#     def ReadXML(self, pTimeline, pxml):
-#         'method ReadXML'
-#         #return 
-#
-#     def WriteXML(self, pTimeline, pbstrXML):
-#         'method WriteXML'
-#         #return 
-#
-
-
 class ColorSource(CoClass):
     _reg_clsid_ = GUID('{0CFDD070-581A-11D2-9EE6-006008039E37}')
     _idlflags_ = []
@@ -4498,649 +3775,103 @@ class RenderEngine(CoClass):
     _reg_typelib_ = ('{78530B68-61F9-11D2-8CAD-00A024580902}', 1, 0)
 
 
+class IRenderEngine(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IUnknown):
+    """IRenderEngine Interface"""
+    _case_insensitive_ = True
+    _iid_ = GUID('{6BEE3A81-66C9-11D2-918F-00C0DF10D434}')
+    _idlflags_ = []
+
+    if TYPE_CHECKING:  # commembers
+        def SetTimelineObject(self, pTimeline: hints.Incomplete) -> hints.Hresult: ...
+        def GetTimelineObject(self) -> 'IAMTimeline': ...
+        def GetFilterGraph(self) -> 'IGraphBuilder': ...
+        def SetFilterGraph(self, pFG: hints.Incomplete) -> hints.Hresult: ...
+        def SetInterestRange(self, Start: hints.Incomplete, Stop: hints.Incomplete) -> hints.Hresult: ...
+        def SetInterestRange2(self, Start: hints.Incomplete, Stop: hints.Incomplete) -> hints.Hresult: ...
+        def SetRenderRange(self, Start: hints.Incomplete, Stop: hints.Incomplete) -> hints.Hresult: ...
+        def SetRenderRange2(self, Start: hints.Incomplete, Stop: hints.Incomplete) -> hints.Hresult: ...
+        def GetGroupOutputPin(self, Group: hints.Incomplete) -> 'IPin': ...
+        def ScrapIt(self) -> hints.Hresult: ...
+        def RenderOutputPins(self) -> hints.Hresult: ...
+        def GetVendorString(self) -> hints.Incomplete: ...
+        def ConnectFrontEnd(self) -> hints.Hresult: ...
+        def SetSourceConnectCallback(self, pCallback: hints.Incomplete) -> hints.Hresult: ...
+        def SetDynamicReconnectLevel(self, Level: hints.Incomplete) -> hints.Hresult: ...
+        def DoSmartRecompression(self) -> hints.Hresult: ...
+        def UseInSmartRecompressionGraph(self) -> hints.Hresult: ...
+        def SetSourceNameValidation(self, FilterString: hints.Incomplete, pOverride: hints.Incomplete, Flags: hints.Incomplete) -> hints.Hresult: ...
+        def Commit(self) -> hints.Hresult: ...
+        def Decommit(self) -> hints.Hresult: ...
+        def GetCaps(self, Index: hints.Incomplete, pReturn: hints.Incomplete) -> hints.Hresult: ...
+
+
 RenderEngine._com_interfaces_ = [IRenderEngine, IRenderEngine2, IAMSetErrorLog]
 
-IMediaDet._methods_ = [
+IDXEffect._methods_ = [
     COMMETHOD(
-        ['propget', helpstring('property Filter')],
+        [dispid(10000), 'propget'],
         HRESULT,
-        'Filter',
-        (['out', 'retval'], POINTER(POINTER(IUnknown)), 'pVal')
-    ),
-    COMMETHOD(
-        ['propput', helpstring('property Filter')],
-        HRESULT,
-        'Filter',
-        (['in'], POINTER(IUnknown), 'pVal')
-    ),
-    COMMETHOD(
-        ['propget', helpstring('property OutputStreams')],
-        HRESULT,
-        'OutputStreams',
+        'Capabilities',
         (['out', 'retval'], POINTER(c_int), 'pVal')
     ),
     COMMETHOD(
-        ['propget', helpstring('property CurrentStream')],
+        [dispid(10001), 'propget'],
         HRESULT,
-        'CurrentStream',
-        (['out', 'retval'], POINTER(c_int), 'pVal')
+        'Progress',
+        (['out', 'retval'], POINTER(c_float), 'pVal')
     ),
     COMMETHOD(
-        ['propput', helpstring('property CurrentStream')],
+        [dispid(10001), 'propput'],
         HRESULT,
-        'CurrentStream',
-        (['in'], c_int, 'pVal')
+        'Progress',
+        (['in'], c_float, 'pVal')
     ),
     COMMETHOD(
-        ['propget', helpstring('property StreamType')],
+        [dispid(10002), 'propget'],
         HRESULT,
-        'StreamType',
-        (
-            ['out', 'retval'],
-            POINTER(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.GUID),
-            'pVal',
-        )
+        'StepResolution',
+        (['out', 'retval'], POINTER(c_float), 'pVal')
     ),
     COMMETHOD(
-        ['propget', helpstring('property StreamTypeB')],
+        [dispid(10003), 'propget'],
         HRESULT,
-        'StreamTypeB',
-        (['out', 'retval'], POINTER(BSTR), 'pVal')
+        'Duration',
+        (['out', 'retval'], POINTER(c_float), 'pVal')
     ),
     COMMETHOD(
-        ['propget', helpstring('property StreamLength')],
+        [dispid(10003), 'propput'],
         HRESULT,
-        'StreamLength',
-        (['out', 'retval'], POINTER(c_double), 'pVal')
-    ),
-    COMMETHOD(
-        ['propget', helpstring('property Filename')],
-        HRESULT,
-        'Filename',
-        (['out', 'retval'], POINTER(BSTR), 'pVal')
-    ),
-    COMMETHOD(
-        ['propput', helpstring('property Filename')],
-        HRESULT,
-        'Filename',
-        (['in'], BSTR, 'pVal')
-    ),
-    COMMETHOD(
-        [helpstring('method GetBitmapBits')],
-        HRESULT,
-        'GetBitmapBits',
-        ([], c_double, 'streamTime'),
-        ([], POINTER(c_int), 'pBufferSize'),
-        ([], POINTER(c_ubyte), 'pBuffer'),
-        ([], c_int, 'Width'),
-        ([], c_int, 'Height')
-    ),
-    COMMETHOD(
-        [helpstring('method WriteBitmapBits')],
-        HRESULT,
-        'WriteBitmapBits',
-        ([], c_double, 'streamTime'),
-        ([], c_int, 'Width'),
-        ([], c_int, 'Height'),
-        ([], BSTR, 'Filename')
-    ),
-    COMMETHOD(
-        ['propget', helpstring('property StreamMediaType')],
-        HRESULT,
-        'StreamMediaType',
-        (['out', 'retval'], POINTER(_AMMediaType), 'pVal')
-    ),
-    COMMETHOD(
-        [helpstring('method GetSampleGrabber')],
-        HRESULT,
-        'GetSampleGrabber',
-        (['out'], POINTER(POINTER(ISampleGrabber)), 'ppVal')
-    ),
-    COMMETHOD(
-        ['propget', helpstring('property FrameRate')],
-        HRESULT,
-        'FrameRate',
-        (['out', 'retval'], POINTER(c_double), 'pVal')
-    ),
-    COMMETHOD(
-        [helpstring('method EnterBitmapGrabMode')],
-        HRESULT,
-        'EnterBitmapGrabMode',
-        ([], c_double, 'SeekTime')
+        'Duration',
+        (['in'], c_float, 'pVal')
     ),
 ]
 
 ################################################################
-# code template for IMediaDet implementation
-# class IMediaDet_Impl(object):
-#     def _get(self):
-#         'property Filter'
-#         #return pVal
-#     def _set(self, pVal):
-#         'property Filter'
-#     Filter = property(_get, _set, doc = _set.__doc__)
-#
+# code template for IDXEffect implementation
+# class IDXEffect_Impl(object):
 #     @property
-#     def OutputStreams(self):
-#         'property OutputStreams'
+#     def Capabilities(self):
+#         '-no docstring-'
 #         #return pVal
 #
 #     def _get(self):
-#         'property CurrentStream'
+#         '-no docstring-'
 #         #return pVal
 #     def _set(self, pVal):
-#         'property CurrentStream'
-#     CurrentStream = property(_get, _set, doc = _set.__doc__)
+#         '-no docstring-'
+#     Progress = property(_get, _set, doc = _set.__doc__)
 #
 #     @property
-#     def StreamType(self):
-#         'property StreamType'
-#         #return pVal
-#
-#     @property
-#     def StreamTypeB(self):
-#         'property StreamTypeB'
-#         #return pVal
-#
-#     @property
-#     def StreamLength(self):
-#         'property StreamLength'
+#     def StepResolution(self):
+#         '-no docstring-'
 #         #return pVal
 #
 #     def _get(self):
-#         'property Filename'
+#         '-no docstring-'
 #         #return pVal
 #     def _set(self, pVal):
-#         'property Filename'
-#     Filename = property(_get, _set, doc = _set.__doc__)
-#
-#     def GetBitmapBits(self, streamTime, pBufferSize, pBuffer, Width, Height):
-#         'method GetBitmapBits'
-#         #return 
-#
-#     def WriteBitmapBits(self, streamTime, Width, Height, Filename):
-#         'method WriteBitmapBits'
-#         #return 
-#
-#     @property
-#     def StreamMediaType(self):
-#         'property StreamMediaType'
-#         #return pVal
-#
-#     def GetSampleGrabber(self):
-#         'method GetSampleGrabber'
-#         #return ppVal
-#
-#     @property
-#     def FrameRate(self):
-#         'property FrameRate'
-#         #return pVal
-#
-#     def EnterBitmapGrabMode(self, SeekTime):
-#         'method EnterBitmapGrabMode'
-#         #return 
-#
-
-__MIDL___MIDL_itf_qedit_0000_0000_0002._fields_ = [
-    ('Name', BSTR),
-    ('dispID', c_int),
-    ('nValues', c_int),
-]
-
-assert sizeof(__MIDL___MIDL_itf_qedit_0000_0000_0002) == 16, sizeof(__MIDL___MIDL_itf_qedit_0000_0000_0002)
-assert alignment(__MIDL___MIDL_itf_qedit_0000_0000_0002) == 8, alignment(__MIDL___MIDL_itf_qedit_0000_0000_0002)
-
-
-class IMediaSample(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IUnknown):
-    _case_insensitive_ = True
-    _iid_ = GUID('{56A8689A-0AD4-11CE-B03A-0020AF0BA770}')
-    _idlflags_ = []
-
-    if TYPE_CHECKING:  # commembers
-        def GetPointer(self) -> hints.Incomplete: ...
-        def GetSize(self) -> hints.Hresult: ...
-        def GetTime(self) -> hints.Tuple[hints.Incomplete, hints.Incomplete]: ...
-        def SetTime(self, pTimeStart: hints.Incomplete, pTimeEnd: hints.Incomplete) -> hints.Hresult: ...
-        def IsSyncPoint(self) -> hints.Hresult: ...
-        def SetSyncPoint(self, bIsSyncPoint: hints.Incomplete) -> hints.Hresult: ...
-        def IsPreroll(self) -> hints.Hresult: ...
-        def SetPreroll(self, bIsPreroll: hints.Incomplete) -> hints.Hresult: ...
-        def GetActualDataLength(self) -> hints.Hresult: ...
-        def SetActualDataLength(self, __MIDL__IMediaSample0000: hints.Incomplete) -> hints.Hresult: ...
-        def GetMediaType(self) -> hints.Incomplete: ...
-        def SetMediaType(self, pMediaType: hints.Incomplete) -> hints.Hresult: ...
-        def IsDiscontinuity(self) -> hints.Hresult: ...
-        def SetDiscontinuity(self, bDiscontinuity: hints.Incomplete) -> hints.Hresult: ...
-        def GetMediaTime(self) -> hints.Tuple[hints.Incomplete, hints.Incomplete]: ...
-        def SetMediaTime(self, pTimeStart: hints.Incomplete, pTimeEnd: hints.Incomplete) -> hints.Hresult: ...
-
-
-class ISampleGrabberCB(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IUnknown):
-    """ISampleGrabberCB Interface"""
-    _case_insensitive_ = True
-    _iid_ = GUID('{0579154A-2B53-4994-B0D0-E773148EFF85}')
-    _idlflags_ = []
-
-    if TYPE_CHECKING:  # commembers
-        def SampleCB(self, SampleTime: hints.Incomplete, pSample: hints.Incomplete) -> hints.Hresult: ...
-        def BufferCB(self, SampleTime: hints.Incomplete, pBuffer: hints.Incomplete, BufferLen: hints.Incomplete) -> hints.Hresult: ...
-
-
-ISampleGrabber._methods_ = [
-    COMMETHOD(
-        [],
-        HRESULT,
-        'SetOneShot',
-        ([], c_int, 'OneShot')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'SetMediaType',
-        ([], POINTER(_AMMediaType), 'pType')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'GetConnectedMediaType',
-        ([], POINTER(_AMMediaType), 'pType')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'SetBufferSamples',
-        ([], c_int, 'BufferThem')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'GetCurrentBuffer',
-        (['in', 'out'], POINTER(c_int), 'pBufferSize'),
-        (['out'], POINTER(c_int), 'pBuffer')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'GetCurrentSample',
-        (['out', 'retval'], POINTER(POINTER(IMediaSample)), 'ppSample')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'SetCallback',
-        ([], POINTER(ISampleGrabberCB), 'pCallback'),
-        ([], c_int, 'WhichMethodToCallback')
-    ),
-]
-
-################################################################
-# code template for ISampleGrabber implementation
-# class ISampleGrabber_Impl(object):
-#     def SetOneShot(self, OneShot):
 #         '-no docstring-'
-#         #return 
-#
-#     def SetMediaType(self, pType):
-#         '-no docstring-'
-#         #return 
-#
-#     def GetConnectedMediaType(self, pType):
-#         '-no docstring-'
-#         #return 
-#
-#     def SetBufferSamples(self, BufferThem):
-#         '-no docstring-'
-#         #return 
-#
-#     def GetCurrentBuffer(self):
-#         '-no docstring-'
-#         #return pBufferSize, pBuffer
-#
-#     def GetCurrentSample(self):
-#         '-no docstring-'
-#         #return ppSample
-#
-#     def SetCallback(self, pCallback, WhichMethodToCallback):
-#         '-no docstring-'
-#         #return 
-#
-
-
-class SmartRenderEngine(CoClass):
-    _reg_clsid_ = GUID('{498B0949-BBE9-4072-98BE-6CCAEB79DC6F}')
-    _idlflags_ = []
-    _typelib_path_ = typelib_path
-    _reg_typelib_ = ('{78530B68-61F9-11D2-8CAD-00A024580902}', 1, 0)
-
-
-SmartRenderEngine._com_interfaces_ = [IRenderEngine, ISmartRenderEngine, IAMSetErrorLog]
-
-IAMTimelineSplittable._methods_ = [
-    COMMETHOD(
-        [],
-        HRESULT,
-        'SplitAt',
-        ([], c_longlong, 'Time')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'SplitAt2',
-        ([], c_double, 'Time')
-    ),
-]
-
-################################################################
-# code template for IAMTimelineSplittable implementation
-# class IAMTimelineSplittable_Impl(object):
-#     def SplitAt(self, Time):
-#         '-no docstring-'
-#         #return 
-#
-#     def SplitAt2(self, Time):
-#         '-no docstring-'
-#         #return 
-#
-
-IMediaSample._methods_ = [
-    COMMETHOD(
-        [],
-        HRESULT,
-        'GetPointer',
-        (['out'], POINTER(POINTER(c_ubyte)), 'ppBuffer')
-    ),
-    COMMETHOD([], c_int, 'GetSize'),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'GetTime',
-        (['out'], POINTER(c_longlong), 'pTimeStart'),
-        (['out'], POINTER(c_longlong), 'pTimeEnd')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'SetTime',
-        (['in'], POINTER(c_longlong), 'pTimeStart'),
-        (['in'], POINTER(c_longlong), 'pTimeEnd')
-    ),
-    COMMETHOD([], HRESULT, 'IsSyncPoint'),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'SetSyncPoint',
-        ([], c_int, 'bIsSyncPoint')
-    ),
-    COMMETHOD([], HRESULT, 'IsPreroll'),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'SetPreroll',
-        ([], c_int, 'bIsPreroll')
-    ),
-    COMMETHOD([], c_int, 'GetActualDataLength'),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'SetActualDataLength',
-        ([], c_int, '__MIDL__IMediaSample0000')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'GetMediaType',
-        (['out'], POINTER(POINTER(_AMMediaType)), 'ppMediaType')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'SetMediaType',
-        (['in'], POINTER(_AMMediaType), 'pMediaType')
-    ),
-    COMMETHOD([], HRESULT, 'IsDiscontinuity'),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'SetDiscontinuity',
-        ([], c_int, 'bDiscontinuity')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'GetMediaTime',
-        (['out'], POINTER(c_longlong), 'pTimeStart'),
-        (['out'], POINTER(c_longlong), 'pTimeEnd')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'SetMediaTime',
-        (['in'], POINTER(c_longlong), 'pTimeStart'),
-        (['in'], POINTER(c_longlong), 'pTimeEnd')
-    ),
-]
-
-################################################################
-# code template for IMediaSample implementation
-# class IMediaSample_Impl(object):
-#     def GetPointer(self):
-#         '-no docstring-'
-#         #return ppBuffer
-#
-#     def GetSize(self):
-#         '-no docstring-'
-#         #return 
-#
-#     def GetTime(self):
-#         '-no docstring-'
-#         #return pTimeStart, pTimeEnd
-#
-#     def SetTime(self, pTimeStart, pTimeEnd):
-#         '-no docstring-'
-#         #return 
-#
-#     def IsSyncPoint(self):
-#         '-no docstring-'
-#         #return 
-#
-#     def SetSyncPoint(self, bIsSyncPoint):
-#         '-no docstring-'
-#         #return 
-#
-#     def IsPreroll(self):
-#         '-no docstring-'
-#         #return 
-#
-#     def SetPreroll(self, bIsPreroll):
-#         '-no docstring-'
-#         #return 
-#
-#     def GetActualDataLength(self):
-#         '-no docstring-'
-#         #return 
-#
-#     def SetActualDataLength(self, __MIDL__IMediaSample0000):
-#         '-no docstring-'
-#         #return 
-#
-#     def GetMediaType(self):
-#         '-no docstring-'
-#         #return ppMediaType
-#
-#     def SetMediaType(self, pMediaType):
-#         '-no docstring-'
-#         #return 
-#
-#     def IsDiscontinuity(self):
-#         '-no docstring-'
-#         #return 
-#
-#     def SetDiscontinuity(self, bDiscontinuity):
-#         '-no docstring-'
-#         #return 
-#
-#     def GetMediaTime(self):
-#         '-no docstring-'
-#         #return pTimeStart, pTimeEnd
-#
-#     def SetMediaTime(self, pTimeStart, pTimeEnd):
-#         '-no docstring-'
-#         #return 
-#
-
-
-class Library(object):
-    """Dexter 1.0 Type Library"""
-    name = 'DexterLib'
-    _reg_typelib_ = ('{78530B68-61F9-11D2-8CAD-00A024580902}', 1, 0)
-
-
-class AMTimelineObj(CoClass):
-    """IAMTimelineObj Class"""
-    _reg_clsid_ = GUID('{78530B78-61F9-11D2-8CAD-00A024580902}')
-    _idlflags_ = []
-    _typelib_path_ = typelib_path
-    _reg_typelib_ = ('{78530B68-61F9-11D2-8CAD-00A024580902}', 1, 0)
-
-
-AMTimelineObj._com_interfaces_ = [IAMTimelineObj]
-
-ISampleGrabberCB._methods_ = [
-    COMMETHOD(
-        [],
-        HRESULT,
-        'SampleCB',
-        ([], c_double, 'SampleTime'),
-        ([], POINTER(IMediaSample), 'pSample')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'BufferCB',
-        ([], c_double, 'SampleTime'),
-        ([], POINTER(c_ubyte), 'pBuffer'),
-        ([], c_int, 'BufferLen')
-    ),
-]
-
-################################################################
-# code template for ISampleGrabberCB implementation
-# class ISampleGrabberCB_Impl(object):
-#     def SampleCB(self, SampleTime, pSample):
-#         '-no docstring-'
-#         #return 
-#
-#     def BufferCB(self, SampleTime, pBuffer, BufferLen):
-#         '-no docstring-'
-#         #return 
-#
-
-__MIDL___MIDL_itf_qedit_0000_0000_0003._fields_ = [
-    ('v', VARIANT),
-    ('rt', c_longlong),
-    ('dwInterp', c_ulong),
-]
-
-assert sizeof(__MIDL___MIDL_itf_qedit_0000_0000_0003) == 40, sizeof(__MIDL___MIDL_itf_qedit_0000_0000_0003)
-assert alignment(__MIDL___MIDL_itf_qedit_0000_0000_0003) == 8, alignment(__MIDL___MIDL_itf_qedit_0000_0000_0003)
-
-
-class DxtJpeg(CoClass):
-    """SMPTE wipe DXT"""
-    _reg_clsid_ = GUID('{DE75D012-7A65-11D2-8CEA-00A0C9441E20}')
-    _idlflags_ = []
-    _typelib_path_ = typelib_path
-    _reg_typelib_ = ('{78530B68-61F9-11D2-8CAD-00A024580902}', 1, 0)
-
-
-DxtJpeg._com_interfaces_ = [IDxtJpeg]
-
-
-class AMTimelineSrc(CoClass):
-    """IAMTimelineSrc Class"""
-    _reg_clsid_ = GUID('{78530B7A-61F9-11D2-8CAD-00A024580902}')
-    _idlflags_ = []
-    _typelib_path_ = typelib_path
-    _reg_typelib_ = ('{78530B68-61F9-11D2-8CAD-00A024580902}', 1, 0)
-
-
-AMTimelineSrc._com_interfaces_ = [IAMTimelineSrc, IAMTimelineObj, IAMTimelineEffectable, IAMTimelineSplittable]
-
-
-class IResize(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IUnknown):
-    """IResize Interface"""
-    _case_insensitive_ = True
-    _iid_ = GUID('{4ADA63A0-72D5-11D2-952A-0060081840BC}')
-    _idlflags_ = []
-
-    if TYPE_CHECKING:  # commembers
-        def get_Size(self) -> hints.Tuple[hints.Incomplete, hints.Incomplete, hints.Incomplete]: ...
-        def get_InputSize(self) -> hints.Tuple[hints.Incomplete, hints.Incomplete]: ...
-        def put_Size(self, Height: hints.Incomplete, Width: hints.Incomplete, Flag: hints.Incomplete) -> hints.Hresult: ...
-        def get_MediaType(self) -> hints.Incomplete: ...
-        def put_MediaType(self, pmt: hints.Incomplete) -> hints.Hresult: ...
-
-
-IResize._methods_ = [
-    COMMETHOD(
-        [],
-        HRESULT,
-        'get_Size',
-        (['out'], POINTER(c_int), 'piHeight'),
-        (['out'], POINTER(c_int), 'piWidth'),
-        (['out'], POINTER(c_int), 'pFlag')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'get_InputSize',
-        (['out'], POINTER(c_int), 'piHeight'),
-        (['out'], POINTER(c_int), 'piWidth')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'put_Size',
-        (['in'], c_int, 'Height'),
-        (['in'], c_int, 'Width'),
-        (['in'], c_int, 'Flag')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'get_MediaType',
-        (['out'], POINTER(_AMMediaType), 'pmt')
-    ),
-    COMMETHOD(
-        [],
-        HRESULT,
-        'put_MediaType',
-        (['in'], POINTER(_AMMediaType), 'pmt')
-    ),
-]
-
-################################################################
-# code template for IResize implementation
-# class IResize_Impl(object):
-#     def get_Size(self):
-#         '-no docstring-'
-#         #return piHeight, piWidth, pFlag
-#
-#     def get_InputSize(self):
-#         '-no docstring-'
-#         #return piHeight, piWidth
-#
-#     def put_Size(self, Height, Width, Flag):
-#         '-no docstring-'
-#         #return 
-#
-#     def get_MediaType(self):
-#         '-no docstring-'
-#         #return pmt
-#
-#     def put_MediaType(self, pmt):
-#         '-no docstring-'
-#         #return 
+#     Duration = property(_get, _set, doc = _set.__doc__)
 #
 
 IDxtCompositor._methods_ = [
@@ -5300,6 +4031,287 @@ IDxtCompositor._methods_ = [
 #     def _set(self, pVal):
 #         'property SrcHeight'
 #     SrcHeight = property(_get, _set, doc = _set.__doc__)
+#
+
+__MIDL___MIDL_itf_qedit_0000_0000_0002._fields_ = [
+    ('Name', BSTR),
+    ('dispID', c_int),
+    ('nValues', c_int),
+]
+
+assert sizeof(__MIDL___MIDL_itf_qedit_0000_0000_0002) == 16, sizeof(__MIDL___MIDL_itf_qedit_0000_0000_0002)
+assert alignment(__MIDL___MIDL_itf_qedit_0000_0000_0002) == 8, alignment(__MIDL___MIDL_itf_qedit_0000_0000_0002)
+
+
+class SmartRenderEngine(CoClass):
+    _reg_clsid_ = GUID('{498B0949-BBE9-4072-98BE-6CCAEB79DC6F}')
+    _idlflags_ = []
+    _typelib_path_ = typelib_path
+    _reg_typelib_ = ('{78530B68-61F9-11D2-8CAD-00A024580902}', 1, 0)
+
+
+SmartRenderEngine._com_interfaces_ = [IRenderEngine, ISmartRenderEngine, IAMSetErrorLog]
+
+IAMTimelineSplittable._methods_ = [
+    COMMETHOD(
+        [],
+        HRESULT,
+        'SplitAt',
+        ([], c_longlong, 'Time')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'SplitAt2',
+        ([], c_double, 'Time')
+    ),
+]
+
+################################################################
+# code template for IAMTimelineSplittable implementation
+# class IAMTimelineSplittable_Impl(object):
+#     def SplitAt(self, Time):
+#         '-no docstring-'
+#         #return 
+#
+#     def SplitAt2(self, Time):
+#         '-no docstring-'
+#         #return 
+#
+
+IRenderEngine._methods_ = [
+    COMMETHOD(
+        [],
+        HRESULT,
+        'SetTimelineObject',
+        ([], POINTER(IAMTimeline), 'pTimeline')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'GetTimelineObject',
+        (['out'], POINTER(POINTER(IAMTimeline)), 'ppTimeline')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'GetFilterGraph',
+        (['out'], POINTER(POINTER(IGraphBuilder)), 'ppFG')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'SetFilterGraph',
+        ([], POINTER(IGraphBuilder), 'pFG')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'SetInterestRange',
+        ([], c_longlong, 'Start'),
+        ([], c_longlong, 'Stop')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'SetInterestRange2',
+        ([], c_double, 'Start'),
+        ([], c_double, 'Stop')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'SetRenderRange',
+        ([], c_longlong, 'Start'),
+        ([], c_longlong, 'Stop')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'SetRenderRange2',
+        ([], c_double, 'Start'),
+        ([], c_double, 'Stop')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'GetGroupOutputPin',
+        ([], c_int, 'Group'),
+        (['out'], POINTER(POINTER(IPin)), 'ppRenderPin')
+    ),
+    COMMETHOD([], HRESULT, 'ScrapIt'),
+    COMMETHOD([], HRESULT, 'RenderOutputPins'),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'GetVendorString',
+        (['out', 'retval'], POINTER(BSTR), 'pVendorID')
+    ),
+    COMMETHOD([], HRESULT, 'ConnectFrontEnd'),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'SetSourceConnectCallback',
+        ([], POINTER(IGrfCache), 'pCallback')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'SetDynamicReconnectLevel',
+        ([], c_int, 'Level')
+    ),
+    COMMETHOD([], HRESULT, 'DoSmartRecompression'),
+    COMMETHOD([], HRESULT, 'UseInSmartRecompressionGraph'),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'SetSourceNameValidation',
+        ([], BSTR, 'FilterString'),
+        ([], POINTER(IMediaLocator), 'pOverride'),
+        ([], c_int, 'Flags')
+    ),
+    COMMETHOD([], HRESULT, 'Commit'),
+    COMMETHOD([], HRESULT, 'Decommit'),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'GetCaps',
+        ([], c_int, 'Index'),
+        ([], POINTER(c_int), 'pReturn')
+    ),
+]
+
+################################################################
+# code template for IRenderEngine implementation
+# class IRenderEngine_Impl(object):
+#     def SetTimelineObject(self, pTimeline):
+#         '-no docstring-'
+#         #return 
+#
+#     def GetTimelineObject(self):
+#         '-no docstring-'
+#         #return ppTimeline
+#
+#     def GetFilterGraph(self):
+#         '-no docstring-'
+#         #return ppFG
+#
+#     def SetFilterGraph(self, pFG):
+#         '-no docstring-'
+#         #return 
+#
+#     def SetInterestRange(self, Start, Stop):
+#         '-no docstring-'
+#         #return 
+#
+#     def SetInterestRange2(self, Start, Stop):
+#         '-no docstring-'
+#         #return 
+#
+#     def SetRenderRange(self, Start, Stop):
+#         '-no docstring-'
+#         #return 
+#
+#     def SetRenderRange2(self, Start, Stop):
+#         '-no docstring-'
+#         #return 
+#
+#     def GetGroupOutputPin(self, Group):
+#         '-no docstring-'
+#         #return ppRenderPin
+#
+#     def ScrapIt(self):
+#         '-no docstring-'
+#         #return 
+#
+#     def RenderOutputPins(self):
+#         '-no docstring-'
+#         #return 
+#
+#     def GetVendorString(self):
+#         '-no docstring-'
+#         #return pVendorID
+#
+#     def ConnectFrontEnd(self):
+#         '-no docstring-'
+#         #return 
+#
+#     def SetSourceConnectCallback(self, pCallback):
+#         '-no docstring-'
+#         #return 
+#
+#     def SetDynamicReconnectLevel(self, Level):
+#         '-no docstring-'
+#         #return 
+#
+#     def DoSmartRecompression(self):
+#         '-no docstring-'
+#         #return 
+#
+#     def UseInSmartRecompressionGraph(self):
+#         '-no docstring-'
+#         #return 
+#
+#     def SetSourceNameValidation(self, FilterString, pOverride, Flags):
+#         '-no docstring-'
+#         #return 
+#
+#     def Commit(self):
+#         '-no docstring-'
+#         #return 
+#
+#     def Decommit(self):
+#         '-no docstring-'
+#         #return 
+#
+#     def GetCaps(self, Index, pReturn):
+#         '-no docstring-'
+#         #return 
+#
+
+IDxtAlphaSetter._methods_ = [
+    COMMETHOD(
+        [dispid(1), helpstring('property Alpha'), 'propget'],
+        HRESULT,
+        'Alpha',
+        (['out', 'retval'], POINTER(c_int), 'pVal')
+    ),
+    COMMETHOD(
+        [dispid(1), helpstring('property Alpha'), 'propput'],
+        HRESULT,
+        'Alpha',
+        (['in'], c_int, 'pVal')
+    ),
+    COMMETHOD(
+        [dispid(2), helpstring('property AlphaRamp'), 'propget'],
+        HRESULT,
+        'AlphaRamp',
+        (['out', 'retval'], POINTER(c_double), 'pVal')
+    ),
+    COMMETHOD(
+        [dispid(2), helpstring('property AlphaRamp'), 'propput'],
+        HRESULT,
+        'AlphaRamp',
+        (['in'], c_double, 'pVal')
+    ),
+]
+
+################################################################
+# code template for IDxtAlphaSetter implementation
+# class IDxtAlphaSetter_Impl(object):
+#     def _get(self):
+#         'property Alpha'
+#         #return pVal
+#     def _set(self, pVal):
+#         'property Alpha'
+#     Alpha = property(_get, _set, doc = _set.__doc__)
+#
+#     def _get(self):
+#         'property AlphaRamp'
+#         #return pVal
+#     def _set(self, pVal):
+#         'property AlphaRamp'
+#     AlphaRamp = property(_get, _set, doc = _set.__doc__)
 #
 
 IAMTimelineTrack._methods_ = [
@@ -5462,36 +4474,1025 @@ IAMTimelineTrack._methods_ = [
 #         #return ppNext
 #
 
+
+class DxtJpeg(CoClass):
+    """SMPTE wipe DXT"""
+    _reg_clsid_ = GUID('{DE75D012-7A65-11D2-8CEA-00A0C9441E20}')
+    _idlflags_ = []
+    _typelib_path_ = typelib_path
+    _reg_typelib_ = ('{78530B68-61F9-11D2-8CAD-00A024580902}', 1, 0)
+
+
+class IDxtJpeg(IDXEffect):
+    """IDxtJpeg Interface"""
+    _case_insensitive_ = True
+    _iid_ = GUID('{DE75D011-7A65-11D2-8CEA-00A0C9441E20}')
+    _idlflags_ = ['dual', 'oleautomation']
+
+    if TYPE_CHECKING:  # commembers
+        def _get_MaskNum(self) -> hints.Incomplete: ...
+        def _set_MaskNum(self, __MIDL__IDxtJpeg0000: hints.Incomplete) -> hints.Hresult: ...
+        MaskNum = hints.normal_property(_get_MaskNum, _set_MaskNum)
+        def _get_MaskName(self) -> hints.Incomplete: ...
+        def _set_MaskName(self, pVal: hints.Incomplete) -> hints.Hresult: ...
+        MaskName = hints.normal_property(_get_MaskName, _set_MaskName)
+        def _get_ScaleX(self) -> hints.Incomplete: ...
+        def _set_ScaleX(self, __MIDL__IDxtJpeg0002: hints.Incomplete) -> hints.Hresult: ...
+        ScaleX = hints.normal_property(_get_ScaleX, _set_ScaleX)
+        def _get_ScaleY(self) -> hints.Incomplete: ...
+        def _set_ScaleY(self, __MIDL__IDxtJpeg0004: hints.Incomplete) -> hints.Hresult: ...
+        ScaleY = hints.normal_property(_get_ScaleY, _set_ScaleY)
+        def _get_OffsetX(self) -> hints.Incomplete: ...
+        def _set_OffsetX(self, __MIDL__IDxtJpeg0006: hints.Incomplete) -> hints.Hresult: ...
+        OffsetX = hints.normal_property(_get_OffsetX, _set_OffsetX)
+        def _get_OffsetY(self) -> hints.Incomplete: ...
+        def _set_OffsetY(self, __MIDL__IDxtJpeg0008: hints.Incomplete) -> hints.Hresult: ...
+        OffsetY = hints.normal_property(_get_OffsetY, _set_OffsetY)
+        def _get_ReplicateX(self) -> hints.Incomplete: ...
+        def _set_ReplicateX(self, pVal: hints.Incomplete) -> hints.Hresult: ...
+        ReplicateX = hints.normal_property(_get_ReplicateX, _set_ReplicateX)
+        def _get_ReplicateY(self) -> hints.Incomplete: ...
+        def _set_ReplicateY(self, pVal: hints.Incomplete) -> hints.Hresult: ...
+        ReplicateY = hints.normal_property(_get_ReplicateY, _set_ReplicateY)
+        def _get_BorderColor(self) -> hints.Incomplete: ...
+        def _set_BorderColor(self, pVal: hints.Incomplete) -> hints.Hresult: ...
+        BorderColor = hints.normal_property(_get_BorderColor, _set_BorderColor)
+        def _get_BorderWidth(self) -> hints.Incomplete: ...
+        def _set_BorderWidth(self, pVal: hints.Incomplete) -> hints.Hresult: ...
+        BorderWidth = hints.normal_property(_get_BorderWidth, _set_BorderWidth)
+        def _get_BorderSoftness(self) -> hints.Incomplete: ...
+        def _set_BorderSoftness(self, pVal: hints.Incomplete) -> hints.Hresult: ...
+        BorderSoftness = hints.normal_property(_get_BorderSoftness, _set_BorderSoftness)
+        def ApplyChanges(self) -> hints.Hresult: ...
+        def LoadDefSettings(self) -> hints.Hresult: ...
+
+
+DxtJpeg._com_interfaces_ = [IDxtJpeg]
+
+IFilterGraph._methods_ = [
+    COMMETHOD(
+        [],
+        HRESULT,
+        'AddFilter',
+        (['in'], POINTER(IBaseFilter), 'pFilter'),
+        (['in'], WSTRING, 'pName')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'RemoveFilter',
+        (['in'], POINTER(IBaseFilter), 'pFilter')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'EnumFilters',
+        (['out'], POINTER(POINTER(IEnumFilters)), 'ppEnum')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'FindFilterByName',
+        (['in'], WSTRING, 'pName'),
+        (['out'], POINTER(POINTER(IBaseFilter)), 'ppFilter')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'ConnectDirect',
+        (['in'], POINTER(IPin), 'ppinOut'),
+        (['in'], POINTER(IPin), 'ppinIn'),
+        (['in'], POINTER(_AMMediaType), 'pmt')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'Reconnect',
+        (['in'], POINTER(IPin), 'pPin')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'Disconnect',
+        (['in'], POINTER(IPin), 'pPin')
+    ),
+    COMMETHOD([], HRESULT, 'SetDefaultSyncSource'),
+]
+
+################################################################
+# code template for IFilterGraph implementation
+# class IFilterGraph_Impl(object):
+#     def AddFilter(self, pFilter, pName):
+#         '-no docstring-'
+#         #return 
+#
+#     def RemoveFilter(self, pFilter):
+#         '-no docstring-'
+#         #return 
+#
+#     def EnumFilters(self):
+#         '-no docstring-'
+#         #return ppEnum
+#
+#     def FindFilterByName(self, pName):
+#         '-no docstring-'
+#         #return ppFilter
+#
+#     def ConnectDirect(self, ppinOut, ppinIn, pmt):
+#         '-no docstring-'
+#         #return 
+#
+#     def Reconnect(self, pPin):
+#         '-no docstring-'
+#         #return 
+#
+#     def Disconnect(self, pPin):
+#         '-no docstring-'
+#         #return 
+#
+#     def SetDefaultSyncSource(self):
+#         '-no docstring-'
+#         #return 
+#
+
+IGraphBuilder._methods_ = [
+    COMMETHOD(
+        [],
+        HRESULT,
+        'Connect',
+        (['in'], POINTER(IPin), 'ppinOut'),
+        (['in'], POINTER(IPin), 'ppinIn')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'Render',
+        (['in'], POINTER(IPin), 'ppinOut')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'RenderFile',
+        (['in'], WSTRING, 'lpcwstrFile'),
+        (['in'], WSTRING, 'lpcwstrPlayList')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'AddSourceFilter',
+        (['in'], WSTRING, 'lpcwstrFileName'),
+        (['in'], WSTRING, 'lpcwstrFilterName'),
+        (['out'], POINTER(POINTER(IBaseFilter)), 'ppFilter')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'SetLogFile',
+        (['in'], ULONG_PTR, 'hFile')
+    ),
+    COMMETHOD([], HRESULT, 'Abort'),
+    COMMETHOD([], HRESULT, 'ShouldOperationContinue'),
+]
+
+################################################################
+# code template for IGraphBuilder implementation
+# class IGraphBuilder_Impl(object):
+#     def Connect(self, ppinOut, ppinIn):
+#         '-no docstring-'
+#         #return 
+#
+#     def Render(self, ppinOut):
+#         '-no docstring-'
+#         #return 
+#
+#     def RenderFile(self, lpcwstrFile, lpcwstrPlayList):
+#         '-no docstring-'
+#         #return 
+#
+#     def AddSourceFilter(self, lpcwstrFileName, lpcwstrFilterName):
+#         '-no docstring-'
+#         #return ppFilter
+#
+#     def SetLogFile(self, hFile):
+#         '-no docstring-'
+#         #return 
+#
+#     def Abort(self):
+#         '-no docstring-'
+#         #return 
+#
+#     def ShouldOperationContinue(self):
+#         '-no docstring-'
+#         #return 
+#
+
+__MIDL___MIDL_itf_qedit_0000_0000_0003._fields_ = [
+    ('v', VARIANT),
+    ('rt', c_longlong),
+    ('dwInterp', c_ulong),
+]
+
+assert sizeof(__MIDL___MIDL_itf_qedit_0000_0000_0003) == 40, sizeof(__MIDL___MIDL_itf_qedit_0000_0000_0003)
+assert alignment(__MIDL___MIDL_itf_qedit_0000_0000_0003) == 8, alignment(__MIDL___MIDL_itf_qedit_0000_0000_0003)
+
+
+class Library(object):
+    """Dexter 1.0 Type Library"""
+    name = 'DexterLib'
+    _reg_typelib_ = ('{78530B68-61F9-11D2-8CAD-00A024580902}', 1, 0)
+
+
+class AMTimelineObj(CoClass):
+    """IAMTimelineObj Class"""
+    _reg_clsid_ = GUID('{78530B78-61F9-11D2-8CAD-00A024580902}')
+    _idlflags_ = []
+    _typelib_path_ = typelib_path
+    _reg_typelib_ = ('{78530B68-61F9-11D2-8CAD-00A024580902}', 1, 0)
+
+
+AMTimelineObj._com_interfaces_ = [IAMTimelineObj]
+
+IDxtJpeg._methods_ = [
+    COMMETHOD(
+        [dispid(1), helpstring('property MaskNum'), 'propget'],
+        HRESULT,
+        'MaskNum',
+        (['out', 'retval'], POINTER(c_int), '__MIDL__IDxtJpeg0000')
+    ),
+    COMMETHOD(
+        [dispid(1), helpstring('property MaskNum'), 'propput'],
+        HRESULT,
+        'MaskNum',
+        (['in'], c_int, '__MIDL__IDxtJpeg0000')
+    ),
+    COMMETHOD(
+        [dispid(2), helpstring('property MaskName'), 'propget'],
+        HRESULT,
+        'MaskName',
+        (['out', 'retval'], POINTER(BSTR), 'pVal')
+    ),
+    COMMETHOD(
+        [dispid(2), helpstring('property MaskName'), 'propput'],
+        HRESULT,
+        'MaskName',
+        (['in'], BSTR, 'pVal')
+    ),
+    COMMETHOD(
+        [dispid(3), helpstring('property ScaleX'), 'propget'],
+        HRESULT,
+        'ScaleX',
+        (['out', 'retval'], POINTER(c_double), '__MIDL__IDxtJpeg0002')
+    ),
+    COMMETHOD(
+        [dispid(3), helpstring('property ScaleX'), 'propput'],
+        HRESULT,
+        'ScaleX',
+        (['in'], c_double, '__MIDL__IDxtJpeg0002')
+    ),
+    COMMETHOD(
+        [dispid(4), helpstring('property ScaleY'), 'propget'],
+        HRESULT,
+        'ScaleY',
+        (['out', 'retval'], POINTER(c_double), '__MIDL__IDxtJpeg0004')
+    ),
+    COMMETHOD(
+        [dispid(4), helpstring('property ScaleY'), 'propput'],
+        HRESULT,
+        'ScaleY',
+        (['in'], c_double, '__MIDL__IDxtJpeg0004')
+    ),
+    COMMETHOD(
+        [dispid(5), helpstring('property OffsetX'), 'propget'],
+        HRESULT,
+        'OffsetX',
+        (['out', 'retval'], POINTER(c_int), '__MIDL__IDxtJpeg0006')
+    ),
+    COMMETHOD(
+        [dispid(5), helpstring('property OffsetX'), 'propput'],
+        HRESULT,
+        'OffsetX',
+        (['in'], c_int, '__MIDL__IDxtJpeg0006')
+    ),
+    COMMETHOD(
+        [dispid(6), helpstring('property OffsetY'), 'propget'],
+        HRESULT,
+        'OffsetY',
+        (['out', 'retval'], POINTER(c_int), '__MIDL__IDxtJpeg0008')
+    ),
+    COMMETHOD(
+        [dispid(6), helpstring('property OffsetY'), 'propput'],
+        HRESULT,
+        'OffsetY',
+        (['in'], c_int, '__MIDL__IDxtJpeg0008')
+    ),
+    COMMETHOD(
+        [dispid(7), helpstring('property ReplicateX'), 'propget'],
+        HRESULT,
+        'ReplicateX',
+        (['out', 'retval'], POINTER(c_int), 'pVal')
+    ),
+    COMMETHOD(
+        [dispid(7), helpstring('property ReplicateX'), 'propput'],
+        HRESULT,
+        'ReplicateX',
+        (['in'], c_int, 'pVal')
+    ),
+    COMMETHOD(
+        [dispid(8), helpstring('property ReplicateY'), 'propget'],
+        HRESULT,
+        'ReplicateY',
+        (['out', 'retval'], POINTER(c_int), 'pVal')
+    ),
+    COMMETHOD(
+        [dispid(8), helpstring('property ReplicateY'), 'propput'],
+        HRESULT,
+        'ReplicateY',
+        (['in'], c_int, 'pVal')
+    ),
+    COMMETHOD(
+        [dispid(9), helpstring('property BorderColor'), 'propget'],
+        HRESULT,
+        'BorderColor',
+        (['out', 'retval'], POINTER(c_int), 'pVal')
+    ),
+    COMMETHOD(
+        [dispid(9), helpstring('property BorderColor'), 'propput'],
+        HRESULT,
+        'BorderColor',
+        (['in'], c_int, 'pVal')
+    ),
+    COMMETHOD(
+        [dispid(10), helpstring('property BorderWidth'), 'propget'],
+        HRESULT,
+        'BorderWidth',
+        (['out', 'retval'], POINTER(c_int), 'pVal')
+    ),
+    COMMETHOD(
+        [dispid(10), helpstring('property BorderWidth'), 'propput'],
+        HRESULT,
+        'BorderWidth',
+        (['in'], c_int, 'pVal')
+    ),
+    COMMETHOD(
+        [dispid(11), helpstring('property BorderSoftness'), 'propget'],
+        HRESULT,
+        'BorderSoftness',
+        (['out', 'retval'], POINTER(c_int), 'pVal')
+    ),
+    COMMETHOD(
+        [dispid(11), helpstring('property BorderSoftness'), 'propput'],
+        HRESULT,
+        'BorderSoftness',
+        (['in'], c_int, 'pVal')
+    ),
+    COMMETHOD([dispid(1610809366)], HRESULT, 'ApplyChanges'),
+    COMMETHOD([dispid(1610809367)], HRESULT, 'LoadDefSettings'),
+]
+
+################################################################
+# code template for IDxtJpeg implementation
+# class IDxtJpeg_Impl(object):
+#     def _get(self):
+#         'property MaskNum'
+#         #return __MIDL__IDxtJpeg0000
+#     def _set(self, __MIDL__IDxtJpeg0000):
+#         'property MaskNum'
+#     MaskNum = property(_get, _set, doc = _set.__doc__)
+#
+#     def _get(self):
+#         'property MaskName'
+#         #return pVal
+#     def _set(self, pVal):
+#         'property MaskName'
+#     MaskName = property(_get, _set, doc = _set.__doc__)
+#
+#     def _get(self):
+#         'property ScaleX'
+#         #return __MIDL__IDxtJpeg0002
+#     def _set(self, __MIDL__IDxtJpeg0002):
+#         'property ScaleX'
+#     ScaleX = property(_get, _set, doc = _set.__doc__)
+#
+#     def _get(self):
+#         'property ScaleY'
+#         #return __MIDL__IDxtJpeg0004
+#     def _set(self, __MIDL__IDxtJpeg0004):
+#         'property ScaleY'
+#     ScaleY = property(_get, _set, doc = _set.__doc__)
+#
+#     def _get(self):
+#         'property OffsetX'
+#         #return __MIDL__IDxtJpeg0006
+#     def _set(self, __MIDL__IDxtJpeg0006):
+#         'property OffsetX'
+#     OffsetX = property(_get, _set, doc = _set.__doc__)
+#
+#     def _get(self):
+#         'property OffsetY'
+#         #return __MIDL__IDxtJpeg0008
+#     def _set(self, __MIDL__IDxtJpeg0008):
+#         'property OffsetY'
+#     OffsetY = property(_get, _set, doc = _set.__doc__)
+#
+#     def _get(self):
+#         'property ReplicateX'
+#         #return pVal
+#     def _set(self, pVal):
+#         'property ReplicateX'
+#     ReplicateX = property(_get, _set, doc = _set.__doc__)
+#
+#     def _get(self):
+#         'property ReplicateY'
+#         #return pVal
+#     def _set(self, pVal):
+#         'property ReplicateY'
+#     ReplicateY = property(_get, _set, doc = _set.__doc__)
+#
+#     def _get(self):
+#         'property BorderColor'
+#         #return pVal
+#     def _set(self, pVal):
+#         'property BorderColor'
+#     BorderColor = property(_get, _set, doc = _set.__doc__)
+#
+#     def _get(self):
+#         'property BorderWidth'
+#         #return pVal
+#     def _set(self, pVal):
+#         'property BorderWidth'
+#     BorderWidth = property(_get, _set, doc = _set.__doc__)
+#
+#     def _get(self):
+#         'property BorderSoftness'
+#         #return pVal
+#     def _set(self, pVal):
+#         'property BorderSoftness'
+#     BorderSoftness = property(_get, _set, doc = _set.__doc__)
+#
+#     def ApplyChanges(self):
+#         '-no docstring-'
+#         #return 
+#
+#     def LoadDefSettings(self):
+#         '-no docstring-'
+#         #return 
+#
+
+
+class AMTimelineSrc(CoClass):
+    """IAMTimelineSrc Class"""
+    _reg_clsid_ = GUID('{78530B7A-61F9-11D2-8CAD-00A024580902}')
+    _idlflags_ = []
+    _typelib_path_ = typelib_path
+    _reg_typelib_ = ('{78530B68-61F9-11D2-8CAD-00A024580902}', 1, 0)
+
+
+AMTimelineSrc._com_interfaces_ = [IAMTimelineSrc, IAMTimelineObj, IAMTimelineEffectable, IAMTimelineSplittable]
+
+
+class IResize(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IUnknown):
+    """IResize Interface"""
+    _case_insensitive_ = True
+    _iid_ = GUID('{4ADA63A0-72D5-11D2-952A-0060081840BC}')
+    _idlflags_ = []
+
+    if TYPE_CHECKING:  # commembers
+        def get_Size(self) -> hints.Tuple[hints.Incomplete, hints.Incomplete, hints.Incomplete]: ...
+        def get_InputSize(self) -> hints.Tuple[hints.Incomplete, hints.Incomplete]: ...
+        def put_Size(self, Height: hints.Incomplete, Width: hints.Incomplete, Flag: hints.Incomplete) -> hints.Hresult: ...
+        def get_MediaType(self) -> hints.Incomplete: ...
+        def put_MediaType(self, pmt: hints.Incomplete) -> hints.Hresult: ...
+
+
+IResize._methods_ = [
+    COMMETHOD(
+        [],
+        HRESULT,
+        'get_Size',
+        (['out'], POINTER(c_int), 'piHeight'),
+        (['out'], POINTER(c_int), 'piWidth'),
+        (['out'], POINTER(c_int), 'pFlag')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'get_InputSize',
+        (['out'], POINTER(c_int), 'piHeight'),
+        (['out'], POINTER(c_int), 'piWidth')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'put_Size',
+        (['in'], c_int, 'Height'),
+        (['in'], c_int, 'Width'),
+        (['in'], c_int, 'Flag')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'get_MediaType',
+        (['out'], POINTER(_AMMediaType), 'pmt')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'put_MediaType',
+        (['in'], POINTER(_AMMediaType), 'pmt')
+    ),
+]
+
+################################################################
+# code template for IResize implementation
+# class IResize_Impl(object):
+#     def get_Size(self):
+#         '-no docstring-'
+#         #return piHeight, piWidth, pFlag
+#
+#     def get_InputSize(self):
+#         '-no docstring-'
+#         #return piHeight, piWidth
+#
+#     def put_Size(self, Height, Width, Flag):
+#         '-no docstring-'
+#         #return 
+#
+#     def get_MediaType(self):
+#         '-no docstring-'
+#         #return pmt
+#
+#     def put_MediaType(self, pmt):
+#         '-no docstring-'
+#         #return 
+#
+
+IAMTimelineTransable._methods_ = [
+    COMMETHOD(
+        [helpstring('method TransAdd')],
+        HRESULT,
+        'TransAdd',
+        ([], POINTER(IAMTimelineObj), 'pTrans')
+    ),
+    COMMETHOD(
+        [helpstring('method TransGetCount')],
+        HRESULT,
+        'TransGetCount',
+        ([], POINTER(c_int), 'pCount')
+    ),
+    COMMETHOD(
+        [helpstring('method GetNextTrans')],
+        HRESULT,
+        'GetNextTrans',
+        (['out'], POINTER(POINTER(IAMTimelineObj)), 'ppTrans'),
+        ([], POINTER(c_longlong), 'pInOut')
+    ),
+    COMMETHOD(
+        [helpstring('method GetNextTrans2')],
+        HRESULT,
+        'GetNextTrans2',
+        (['out'], POINTER(POINTER(IAMTimelineObj)), 'ppTrans'),
+        ([], POINTER(c_double), 'pInOut')
+    ),
+    COMMETHOD(
+        [helpstring('method GetTransAtTime')],
+        HRESULT,
+        'GetTransAtTime',
+        (['out'], POINTER(POINTER(IAMTimelineObj)), 'ppObj'),
+        ([], c_longlong, 'Time'),
+        ([], c_int, 'SearchDirection')
+    ),
+    COMMETHOD(
+        [helpstring('method GetTransAtTime2')],
+        HRESULT,
+        'GetTransAtTime2',
+        (['out'], POINTER(POINTER(IAMTimelineObj)), 'ppObj'),
+        ([], c_double, 'Time'),
+        ([], c_int, 'SearchDirection')
+    ),
+]
+
+################################################################
+# code template for IAMTimelineTransable implementation
+# class IAMTimelineTransable_Impl(object):
+#     def TransAdd(self, pTrans):
+#         'method TransAdd'
+#         #return 
+#
+#     def TransGetCount(self, pCount):
+#         'method TransGetCount'
+#         #return 
+#
+#     def GetNextTrans(self, pInOut):
+#         'method GetNextTrans'
+#         #return ppTrans
+#
+#     def GetNextTrans2(self, pInOut):
+#         'method GetNextTrans2'
+#         #return ppTrans
+#
+#     def GetTransAtTime(self, Time, SearchDirection):
+#         'method GetTransAtTime'
+#         #return ppObj
+#
+#     def GetTransAtTime2(self, Time, SearchDirection):
+#         'method GetTransAtTime2'
+#         #return ppObj
+#
+
+
+class IReferenceClock(comtypes.gen._00020430_0000_0000_C000_000000000046_0_2_0.IUnknown):
+    _case_insensitive_ = True
+    _iid_ = GUID('{56A86897-0AD4-11CE-B03A-0020AF0BA770}')
+    _idlflags_ = []
+
+    if TYPE_CHECKING:  # commembers
+        def GetTime(self) -> hints.Incomplete: ...
+        def AdviseTime(self, baseTime: hints.Incomplete, streamTime: hints.Incomplete, hEvent: hints.Incomplete) -> hints.Incomplete: ...
+        def AdvisePeriodic(self, startTime: hints.Incomplete, periodTime: hints.Incomplete, hSemaphore: hints.Incomplete) -> hints.Incomplete: ...
+        def Unadvise(self, dwAdviseCookie: hints.Incomplete) -> hints.Hresult: ...
+
+
+IMediaFilter._methods_ = [
+    COMMETHOD([], HRESULT, 'Stop'),
+    COMMETHOD([], HRESULT, 'Pause'),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'Run',
+        ([], c_longlong, 'tStart')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'GetState',
+        (['in'], c_ulong, 'dwMilliSecsTimeout'),
+        (['out'], POINTER(_FilterState), 'State')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'SetSyncSource',
+        (['in'], POINTER(IReferenceClock), 'pClock')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'GetSyncSource',
+        (['out'], POINTER(POINTER(IReferenceClock)), 'pClock')
+    ),
+]
+
+################################################################
+# code template for IMediaFilter implementation
+# class IMediaFilter_Impl(object):
+#     def Stop(self):
+#         '-no docstring-'
+#         #return 
+#
+#     def Pause(self):
+#         '-no docstring-'
+#         #return 
+#
+#     def Run(self, tStart):
+#         '-no docstring-'
+#         #return 
+#
+#     def GetState(self, dwMilliSecsTimeout):
+#         '-no docstring-'
+#         #return State
+#
+#     def SetSyncSource(self, pClock):
+#         '-no docstring-'
+#         #return 
+#
+#     def GetSyncSource(self):
+#         '-no docstring-'
+#         #return pClock
+#
+
+IBaseFilter._methods_ = [
+    COMMETHOD(
+        [],
+        HRESULT,
+        'EnumPins',
+        (['out'], POINTER(POINTER(IEnumPins)), 'ppEnum')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'FindPin',
+        (['in'], WSTRING, 'Id'),
+        (['out'], POINTER(POINTER(IPin)), 'ppPin')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'QueryFilterInfo',
+        (['out'], POINTER(_FilterInfo), 'pInfo')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'JoinFilterGraph',
+        (['in'], POINTER(IFilterGraph), 'pGraph'),
+        (['in'], WSTRING, 'pName')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'QueryVendorInfo',
+        (['out'], POINTER(WSTRING), 'pVendorInfo')
+    ),
+]
+
+################################################################
+# code template for IBaseFilter implementation
+# class IBaseFilter_Impl(object):
+#     def EnumPins(self):
+#         '-no docstring-'
+#         #return ppEnum
+#
+#     def FindPin(self, Id):
+#         '-no docstring-'
+#         #return ppPin
+#
+#     def QueryFilterInfo(self):
+#         '-no docstring-'
+#         #return pInfo
+#
+#     def JoinFilterGraph(self, pGraph, pName):
+#         '-no docstring-'
+#         #return 
+#
+#     def QueryVendorInfo(self):
+#         '-no docstring-'
+#         #return pVendorInfo
+#
+
+
+class DxtKey(CoClass):
+    """DxtKey Class"""
+    _reg_clsid_ = GUID('{C5B19592-145E-11D3-9F04-006008039E37}')
+    _idlflags_ = []
+    _typelib_path_ = typelib_path
+    _reg_typelib_ = ('{78530B68-61F9-11D2-8CAD-00A024580902}', 1, 0)
+
+
+class IDxtKey(IDXEffect):
+    """IDxtKey Interface"""
+    _case_insensitive_ = True
+    _iid_ = GUID('{3255DE56-38FB-4901-B980-94B438010D7B}')
+    _idlflags_ = ['dual', 'oleautomation']
+
+    if TYPE_CHECKING:  # commembers
+        def _get_KeyType(self) -> hints.Incomplete: ...
+        def _set_KeyType(self, __MIDL__IDxtKey0000: hints.Incomplete) -> hints.Hresult: ...
+        KeyType = hints.normal_property(_get_KeyType, _set_KeyType)
+        def _get_Hue(self) -> hints.Incomplete: ...
+        def _set_Hue(self, __MIDL__IDxtKey0002: hints.Incomplete) -> hints.Hresult: ...
+        Hue = hints.normal_property(_get_Hue, _set_Hue)
+        def _get_Luminance(self) -> hints.Incomplete: ...
+        def _set_Luminance(self, __MIDL__IDxtKey0004: hints.Incomplete) -> hints.Hresult: ...
+        Luminance = hints.normal_property(_get_Luminance, _set_Luminance)
+        def _get_RGB(self) -> hints.Incomplete: ...
+        def _set_RGB(self, __MIDL__IDxtKey0006: hints.Incomplete) -> hints.Hresult: ...
+        RGB = hints.normal_property(_get_RGB, _set_RGB)
+        def _get_Similarity(self) -> hints.Incomplete: ...
+        def _set_Similarity(self, __MIDL__IDxtKey0008: hints.Incomplete) -> hints.Hresult: ...
+        Similarity = hints.normal_property(_get_Similarity, _set_Similarity)
+        def _get_Invert(self) -> hints.Incomplete: ...
+        def _set_Invert(self, __MIDL__IDxtKey0010: hints.Incomplete) -> hints.Hresult: ...
+        Invert = hints.normal_property(_get_Invert, _set_Invert)
+
+
+DxtKey._com_interfaces_ = [IDxtKey]
+
+IDxtKey._methods_ = [
+    COMMETHOD(
+        [dispid(1), helpstring('property KeyType'), 'propget'],
+        HRESULT,
+        'KeyType',
+        (['out', 'retval'], POINTER(c_int), '__MIDL__IDxtKey0000')
+    ),
+    COMMETHOD(
+        [dispid(1), helpstring('property KeyType'), 'propput'],
+        HRESULT,
+        'KeyType',
+        (['in'], c_int, '__MIDL__IDxtKey0000')
+    ),
+    COMMETHOD(
+        [dispid(2), helpstring('property Hue'), 'propget'],
+        HRESULT,
+        'Hue',
+        (['out', 'retval'], POINTER(c_int), '__MIDL__IDxtKey0002')
+    ),
+    COMMETHOD(
+        [dispid(2), helpstring('property Hue'), 'propput'],
+        HRESULT,
+        'Hue',
+        (['in'], c_int, '__MIDL__IDxtKey0002')
+    ),
+    COMMETHOD(
+        [dispid(3), helpstring('property Luminance'), 'propget'],
+        HRESULT,
+        'Luminance',
+        (['out', 'retval'], POINTER(c_int), '__MIDL__IDxtKey0004')
+    ),
+    COMMETHOD(
+        [dispid(3), helpstring('property Luminance'), 'propput'],
+        HRESULT,
+        'Luminance',
+        (['in'], c_int, '__MIDL__IDxtKey0004')
+    ),
+    COMMETHOD(
+        [dispid(4), helpstring('property RGB'), 'propget'],
+        HRESULT,
+        'RGB',
+        (['out', 'retval'], POINTER(c_ulong), '__MIDL__IDxtKey0006')
+    ),
+    COMMETHOD(
+        [dispid(4), helpstring('property RGB'), 'propput'],
+        HRESULT,
+        'RGB',
+        (['in'], c_ulong, '__MIDL__IDxtKey0006')
+    ),
+    COMMETHOD(
+        [dispid(5), helpstring('property Similarity'), 'propget'],
+        HRESULT,
+        'Similarity',
+        (['out', 'retval'], POINTER(c_int), '__MIDL__IDxtKey0008')
+    ),
+    COMMETHOD(
+        [dispid(5), helpstring('property Similarity'), 'propput'],
+        HRESULT,
+        'Similarity',
+        (['in'], c_int, '__MIDL__IDxtKey0008')
+    ),
+    COMMETHOD(
+        [dispid(6), helpstring('property Invert'), 'propget'],
+        HRESULT,
+        'Invert',
+        (['out', 'retval'], POINTER(c_int), '__MIDL__IDxtKey0010')
+    ),
+    COMMETHOD(
+        [dispid(6), helpstring('property Invert'), 'propput'],
+        HRESULT,
+        'Invert',
+        (['in'], c_int, '__MIDL__IDxtKey0010')
+    ),
+]
+
+################################################################
+# code template for IDxtKey implementation
+# class IDxtKey_Impl(object):
+#     def _get(self):
+#         'property KeyType'
+#         #return __MIDL__IDxtKey0000
+#     def _set(self, __MIDL__IDxtKey0000):
+#         'property KeyType'
+#     KeyType = property(_get, _set, doc = _set.__doc__)
+#
+#     def _get(self):
+#         'property Hue'
+#         #return __MIDL__IDxtKey0002
+#     def _set(self, __MIDL__IDxtKey0002):
+#         'property Hue'
+#     Hue = property(_get, _set, doc = _set.__doc__)
+#
+#     def _get(self):
+#         'property Luminance'
+#         #return __MIDL__IDxtKey0004
+#     def _set(self, __MIDL__IDxtKey0004):
+#         'property Luminance'
+#     Luminance = property(_get, _set, doc = _set.__doc__)
+#
+#     def _get(self):
+#         'property RGB'
+#         #return __MIDL__IDxtKey0006
+#     def _set(self, __MIDL__IDxtKey0006):
+#         'property RGB'
+#     RGB = property(_get, _set, doc = _set.__doc__)
+#
+#     def _get(self):
+#         'property Similarity'
+#         #return __MIDL__IDxtKey0008
+#     def _set(self, __MIDL__IDxtKey0008):
+#         'property Similarity'
+#     Similarity = property(_get, _set, doc = _set.__doc__)
+#
+#     def _get(self):
+#         'property Invert'
+#         #return __MIDL__IDxtKey0010
+#     def _set(self, __MIDL__IDxtKey0010):
+#         'property Invert'
+#     Invert = property(_get, _set, doc = _set.__doc__)
+#
+
+
+class SampleGrabber(CoClass):
+    """MsGrab Class"""
+    _reg_clsid_ = GUID('{C1F400A0-3F08-11D3-9F0B-006008039E37}')
+    _idlflags_ = []
+    _typelib_path_ = typelib_path
+    _reg_typelib_ = ('{78530B68-61F9-11D2-8CAD-00A024580902}', 1, 0)
+
+
+SampleGrabber._com_interfaces_ = [ISampleGrabber]
+
+
+class NullRenderer(CoClass):
+    """NullRenderer Class"""
+    _reg_clsid_ = GUID('{C1F400A4-3F08-11D3-9F0B-006008039E37}')
+    _idlflags_ = []
+    _typelib_path_ = typelib_path
+    _reg_typelib_ = ('{78530B68-61F9-11D2-8CAD-00A024580902}', 1, 0)
+
+
+NullRenderer._com_interfaces_ = [IBaseFilter]
+
+IReferenceClock._methods_ = [
+    COMMETHOD(
+        [],
+        HRESULT,
+        'GetTime',
+        (['out'], POINTER(c_longlong), 'pTime')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'AdviseTime',
+        (['in'], c_longlong, 'baseTime'),
+        (['in'], c_longlong, 'streamTime'),
+        (['in'], ULONG_PTR, 'hEvent'),
+        (['out'], POINTER(ULONG_PTR), 'pdwAdviseCookie')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'AdvisePeriodic',
+        (['in'], c_longlong, 'startTime'),
+        (['in'], c_longlong, 'periodTime'),
+        (['in'], ULONG_PTR, 'hSemaphore'),
+        (['out'], POINTER(ULONG_PTR), 'pdwAdviseCookie')
+    ),
+    COMMETHOD(
+        [],
+        HRESULT,
+        'Unadvise',
+        (['in'], ULONG_PTR, 'dwAdviseCookie')
+    ),
+]
+
+################################################################
+# code template for IReferenceClock implementation
+# class IReferenceClock_Impl(object):
+#     def GetTime(self):
+#         '-no docstring-'
+#         #return pTime
+#
+#     def AdviseTime(self, baseTime, streamTime, hEvent):
+#         '-no docstring-'
+#         #return pdwAdviseCookie
+#
+#     def AdvisePeriodic(self, startTime, periodTime, hSemaphore):
+#         '-no docstring-'
+#         #return pdwAdviseCookie
+#
+#     def Unadvise(self, dwAdviseCookie):
+#         '-no docstring-'
+#         #return 
+#
+
 __all__ = [
-    'IAMTimeline', 'TIMELINE_MAJOR_TYPE_EFFECT', 'IAMTimelineComp',
-    'DxtCompositor', 'IAMTimelineTrack', '_FilterState',
-    'TIMELINE_MAJOR_TYPE_SOURCE', 'IResize', 'IAMTimelineTransable',
-    'IDxtJpeg', 'AMTimelineSrc', 'AMTimelineTrack', 'IStream',
-    '__MIDL___MIDL_itf_qedit_0000_0000_0003', 'IEnumMediaTypes',
-    'AMTimelineTrans', 'ISmartRenderEngine', 'IAMSetErrorLog',
-    'IMediaSample', 'AMTimelineComp', 'DEXTER_PARAM', 'IGraphBuilder',
-    'ColorSource', 'IDxtCompositor', 'IAMTimelineEffectable',
-    'ISampleGrabberCB', '__MIDL___MIDL_itf_qedit_0000_0000_0002',
-    'IPropertySetter', 'IPin', 'IAMTimelineTrans', 'typelib_path',
-    'IAMTimelineGroup', 'RenderEngine', 'IFindCompressorCB',
-    'tagSTATSTG', '_AMMediaType', 'IAMTimelineEffect',
-    'IRenderEngine2', 'IDXEffect', 'TIMELINE_MAJOR_TYPE_GROUP',
-    '_PinInfo', 'IAMTimelineObj', '_FilterInfo', 'DxtJpeg',
-    'IReferenceClock', 'IAMErrorLog', 'MediaDet', 'LONG_PTR',
-    'IMediaLocator', 'IPersistStream', 'IEnumFilters',
-    'PINDIR_OUTPUT', '_PinDirection', 'IDxtKey', 'Xml2Dex',
-    'IXml2Dex', 'State_Running', 'IEnumPins',
-    '__MIDL___MIDL_itf_qedit_0000_0000_0007', 'DEXTER_VALUE',
-    'DxtAlphaSetter', 'SampleGrabber', 'IDxtAlphaSetter',
-    'IFilterGraph', 'AMTimelineEffect', 'IBaseFilter',
-    'PropertySetter', 'IRenderEngine', 'IGrfCache', 'Library',
-    'PINDIR_INPUT', 'AMTimelineGroup', 'AMTimelineObj',
-    'TIMELINE_MAJOR_TYPE_TRACK', 'TIMELINE_MAJOR_TYPE_TRANSITION',
-    'AudMixer', 'TIMELINE_MAJOR_TYPE_COMPOSITE', 'DxtKey',
-    'NullRenderer', 'ISampleGrabber', 'MediaLocator',
-    'IAMTimelineVirtualTrack', 'SmartRenderEngine', 'IAMTimelineSrc',
-    'State_Stopped', 'AMTimeline', 'IMediaDet', 'IMediaFilter',
-    'TIMELINE_MAJOR_TYPE', 'State_Paused', 'IAMTimelineSplittable'
+    'IMediaDet', 'IMediaLocator', 'SampleGrabber', 'PINDIR_OUTPUT',
+    'TIMELINE_MAJOR_TYPE_SOURCE', 'State_Paused', 'State_Running',
+    'AMTimelineGroup', 'TIMELINE_MAJOR_TYPE_TRACK', 'IDxtKey',
+    'IAMTimelineTrans', 'IAMTimelineTrack', 'AMTimelineTrack',
+    'IStream', 'ISampleGrabber', 'DEXTER_VALUE', 'IFilterGraph',
+    'PINDIR_INPUT', '__MIDL___MIDL_itf_qedit_0000_0000_0002',
+    'DxtJpeg', 'IAMTimelineEffect', 'IMediaSample', 'DxtAlphaSetter',
+    '_AMMediaType', '_PinInfo', 'IMediaFilter', 'IPin', 'IAMErrorLog',
+    '_PinDirection', 'MediaDet', 'IAMTimelineObj', 'IAMTimelineComp',
+    'IAMTimelineVirtualTrack', 'AMTimeline', '_FilterInfo', 'Library',
+    'IBaseFilter', 'IDxtAlphaSetter', 'IGrfCache', 'NullRenderer',
+    'ISampleGrabberCB', 'ColorSource', 'AMTimelineTrans',
+    'AMTimelineSrc', 'DEXTER_PARAM', 'IPersistStream',
+    'PropertySetter', 'IDXEffect', 'SmartRenderEngine',
+    '__MIDL___MIDL_itf_qedit_0000_0000_0003', 'IAMTimelineSrc',
+    'IDxtJpeg', 'IRenderEngine', 'IEnumMediaTypes', '_FilterState',
+    'IPropertySetter', 'IAMTimelineTransable', 'IEnumFilters',
+    'IResize', 'IXml2Dex', 'IReferenceClock', 'DxtCompositor',
+    'tagSTATSTG', 'TIMELINE_MAJOR_TYPE_TRANSITION', 'IAMSetErrorLog',
+    'State_Stopped', 'AMTimelineObj', 'AMTimelineEffect', 'AudMixer',
+    'IDxtCompositor', 'AMTimelineComp', 'DxtKey',
+    'TIMELINE_MAJOR_TYPE_EFFECT',
+    '__MIDL___MIDL_itf_qedit_0000_0000_0007', 'IGraphBuilder',
+    'IAMTimelineEffectable', 'ISmartRenderEngine',
+    'TIMELINE_MAJOR_TYPE_COMPOSITE', 'IFindCompressorCB', 'IEnumPins',
+    'TIMELINE_MAJOR_TYPE', 'IRenderEngine2', 'Xml2Dex',
+    'MediaLocator', 'typelib_path', 'IAMTimelineGroup',
+    'RenderEngine', 'TIMELINE_MAJOR_TYPE_GROUP', 'LONG_PTR',
+    'IAMTimelineSplittable', 'IAMTimeline'
 ]
 
 _check_version('1.4.12', 1756562189.170021)

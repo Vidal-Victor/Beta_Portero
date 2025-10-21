@@ -1,12 +1,12 @@
 {
     "cam": {
         "placa_coords": [
-            139, 
-            190, 
-            357, 
+            139,
+            190,
+            357,
             189
         ],
-        "dispositivoE": 0,
+        "dispositivoE": 1,
         "dispositivoS": 1
     },
     "mic": {
